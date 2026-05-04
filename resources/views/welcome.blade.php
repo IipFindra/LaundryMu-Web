@@ -126,10 +126,11 @@
             <div class="rounded-xl overflow-hidden shadow-2xl border border-gray-200">
                 <iframe
                     class="w-full h-[500px]"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.3444065606626!2d113.720612!3d-8.168123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOMKwMTAnMDUuMiJTIDExM8KwNDMnMTQuMiJF!5e0!3m2!1sen!2sid!4v1650000000000!5m2!1sen!2sid"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.3444065606626!2d113.7230257!3d-8.1659175!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd695e91d40e24d:0x51fa2b9161964dc5!2sLaundryMu!5e0!3m2!1sid!2sid!4v1750000000000!5m2!1sid!2sid"
                     style="border:0;"
                     allowfullscreen=""
-                    loading="lazy">
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
                 </iframe>
             </div>
         </div>
