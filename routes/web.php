@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PesananController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LayananController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,18 @@ Route::middleware(['auth'])->group(function () {
     // Pesanan
     Route::get('/pesanan', [PesananController::class, 'index'])
         ->name('pesanan');
+
+    // Pelanggan
+    Route::get('/pelanggan', function () {
+        $pelanggans = [];
+        return view('pelanggan', compact('pelanggans'));
+    })->name('pelanggan');
+
+    // Layanan
+    Route::get('/layanan', [LayananController::class, 'index'])->name('layanan');
+    Route::post('/layanan', [LayananController::class, 'store'])->name('layanan.store');
+    Route::put('/layanan/{id}', [LayananController::class, 'update'])->name('layanan.update');
+    Route::delete('/layanan/{id}', [LayananController::class, 'destroy'])->name('layanan.destroy');
 
     Route::get('/pesanan/{id}/struk', [PesananController::class, 'generateStruk'])
         ->name('pesanan.struk');

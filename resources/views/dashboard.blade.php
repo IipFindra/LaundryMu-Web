@@ -24,11 +24,11 @@
                     <span class="material-icons text-3xl">receipt_long</span>
                     Pesanan
                 </a>
-                <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
+                <a href="{{ route('pelanggan') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
                     <span class="material-icons text-3xl">person</span>
                     Pelanggan
                 </a>
-                <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
+                <a href="{{ route('layanan') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
                     <span class="material-icons text-3xl">assignment</span>
                     Layanan
                 </a>
@@ -101,7 +101,7 @@
                 <div class="p-6 flex items-center gap-4">
                     <span class="material-icons text-[#3e51b5] text-4xl bg-white rounded-full p-2 shadow">description</span>
                     <div>
-                        <div class="text-2xl font-bold text-[#3e51b5]">+10</div>
+                        <div class="text-2xl font-bold text-[#3e51b5]">0</div>
                         <div class="text-base">Pesanan Baru</div>
                     </div>
                 </div>
@@ -114,7 +114,7 @@
                 <div class="p-6 flex items-center gap-4">
                     <span class="material-icons text-green-500 text-4xl bg-white rounded-full p-2 shadow">groups</span>
                     <div>
-                        <div class="text-2xl font-bold text-green-600">57</div>
+                        <div class="text-2xl font-bold text-green-600">0</div>
                         <div class="text-base">Pelanggan</div>
                     </div>
                 </div>
@@ -127,7 +127,7 @@
                 <div class="p-6 flex items-center gap-4">
                     <span class="material-icons text-orange-500 text-4xl bg-white rounded-full p-2 shadow">payments</span>
                     <div>
-                        <div class="text-2xl font-bold text-orange-500">Rp1,535K</div>
+                        <div class="text-2xl font-bold text-orange-500">Rp0</div>
                         <div class="text-base">Total Pendapatan</div>
                     </div>
                 </div>
@@ -140,7 +140,7 @@
                 <div class="p-6 flex items-center gap-4">
                     <span class="material-icons text-[#3e51b5] text-4xl bg-white rounded-full p-2 shadow">task_alt</span>
                     <div>
-                        <div class="text-2xl font-bold text-[#3e51b5]">1</div>
+                        <div class="text-2xl font-bold text-[#3e51b5]">0</div>
                         <div class="text-base">Pesanan Selesai</div>
                     </div>
                 </div>
@@ -174,130 +174,8 @@
             <!-- LIST -->
             <div class="bg-white p-6 rounded-2xl shadow-lg w-96 flex flex-col">
                 <h2 class="font-bold text-xl text-[#2d3e90] mb-4 flex items-center gap-2"><span class="material-icons text-2xl">receipt_long</span>Pesanan Terbaru</h2>
-                <div class="flex-1 overflow-y-auto max-h-96 pr-2 custom-scrollbar">
-                    <div class="space-y-4 text-base">
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <div>
-                                <span class="font-bold text-[#2d3e90]">#12</span> <span class="font-semibold">Yuski Ramdhan</span><br>
-                                <span class="text-gray-400 text-sm">Cuci Setrika</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-blue-600 font-bold">2 KG</span><br>
-                                <span class="text-gray-700 font-semibold">Rp. 10.000</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <div>
-                                <span class="font-bold text-[#2d3e90]">#11</span> <span class="font-semibold">Fahmi Syahdan</span><br>
-                                <span class="text-gray-400 text-sm">Cuci Kering</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-blue-600 font-bold">4 KG</span><br>
-                                <span class="text-gray-700 font-semibold">Rp. 16.000</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <div>
-                                <span class="font-bold text-[#2d3e90]">#10</span> <span class="font-semibold">Zubaeri Romzi</span><br>
-                                <span class="text-gray-400 text-sm">Cuci Kering</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-blue-600 font-bold">1 KG</span><br>
-                                <span class="text-gray-700 font-semibold">Rp. 4.000</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <div>
-                                <span class="font-bold text-[#2d3e90]">#9</span> <span class="font-semibold">Zubaeri Romzi</span><br>
-                                <span class="text-gray-400 text-sm">Cuci Express</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-blue-600 font-bold">3 Satuan</span><br>
-                                <span class="text-gray-700 font-semibold">Rp. 12.000</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <div>
-                                <span class="font-bold text-[#2d3e90]">#8</span> <span class="font-semibold">Nadhiefa</span><br>
-                                <span class="text-gray-400 text-sm">Cuci Setrika</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-blue-600 font-bold">5 KG</span><br>
-                                <span class="text-gray-700 font-semibold">Rp. 25.000</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <div>
-                                <span class="font-bold text-[#2d3e90]">#7</span> <span class="font-semibold">Nadhiefa</span><br>
-                                <span class="text-gray-400 text-sm">Cuci Kering</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-blue-600 font-bold">1 KG</span><br>
-                                <span class="text-gray-700 font-semibold">Rp. 4.000</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <div>
-                                <span class="font-bold text-[#2d3e90]">#6</span> <span class="font-semibold">Yuski Ramadhan</span><br>
-                                <span class="text-gray-400 text-sm">Cuci Kering</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-blue-600 font-bold">1 KG</span><br>
-                                <span class="text-gray-700 font-semibold">Rp. 4.000</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <div>
-                                <span class="font-bold text-[#2d3e90]">#5</span> <span class="font-semibold">RafiRa Nata</span><br>
-                                <span class="text-gray-400 text-sm">Cuci Express</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-blue-600 font-bold">1 Satuan</span><br>
-                                <span class="text-gray-700 font-semibold">Rp. 4.000</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <div>
-                                <span class="font-bold text-[#2d3e90]">#4</span> <span class="font-semibold">Taufiq Syahrina</span><br>
-                                <span class="text-gray-400 text-sm">Cuci Express</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-blue-600 font-bold">5 Satuan</span><br>
-                                <span class="text-gray-700 font-semibold">Rp. 20.000</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <div>
-                                <span class="font-bold text-[#2d3e90]">#3</span> <span class="font-semibold">Allena</span><br>
-                                <span class="text-gray-400 text-sm">Cuci Setrika</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-blue-600 font-bold">5 KG</span><br>
-                                <span class="text-gray-700 font-semibold">Rp. 25.000</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <div>
-                                <span class="font-bold text-[#2d3e90]">#2</span> <span class="font-semibold">Refa Relyanda</span><br>
-                                <span class="text-gray-400 text-sm">Cuci Setrika</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-blue-600 font-bold">3 KG</span><br>
-                                <span class="text-gray-700 font-semibold">Rp. 15.000</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center border-b pb-2">
-                            <div>
-                                <span class="font-bold text-[#2d3e90]">#1</span> <span class="font-semibold">Fahmi Syahdan</span><br>
-                                <span class="text-gray-400 text-sm">Cuci Setrika</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-blue-600 font-bold">1 KG</span><br>
-                                <span class="text-gray-700 font-semibold">Rp. 5.000</span>
-                            </div>
-                        </div>
-                        <!-- Tambahkan data pesanan lain di sini jika perlu -->
-                    </div>
+                <div class="flex-1 overflow-y-auto max-h-96 pr-2 custom-scrollbar flex items-center justify-center text-gray-400">
+                    Belum ada pesanan terbaru.
                 </div>
             </div>
 
@@ -314,7 +192,7 @@ new Chart(document.getElementById('chart'), {
         labels: ['November','Desember','Januari','Februari','Maret','April','Mei'],
         datasets: [{
             label: 'Pendapatan',
-            data: [28000,180000,130000,140000,50000,40000,0],
+            data: [0,0,0,0,0,0,0],
             backgroundColor: '#3e51b5',
             borderRadius: 8,
             barPercentage: 0.6,

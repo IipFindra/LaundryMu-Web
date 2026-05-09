@@ -24,11 +24,11 @@
                     <span class="material-icons text-3xl">receipt_long</span>
                     Pesanan
                 </a>
-                <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
+                <a href="{{ route('pelanggan') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
                     <span class="material-icons text-3xl">person</span>
                     Pelanggan
                 </a>
-                <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
+                <a href="{{ route('layanan') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
                     <span class="material-icons text-3xl">assignment</span>
                     Layanan
                 </a>
@@ -58,7 +58,7 @@
         <!-- HEADER FIXED -->
         <header class="fixed top-0 left-72 right-0 h-16 bg-white flex items-center justify-between px-10 z-30 border-b border-gray-100" style="min-width:0;">
             <div class="flex items-center gap-3 h-full">
-                <span class="material-icons text-3xl text-[#2d3e90]">receipt_long</span>
+                <!-- <span class="material-icons text-3xl text-[#2d3e90]">receipt_long</span> -->
                 <span class="text-2xl font-bold text-[#2d3e90]">Manajemen Pesanan</span>
             </div>
             <div class="flex items-center gap-4">
@@ -109,6 +109,13 @@
 
         <!-- TABLE CARD -->
         <div class="bg-white rounded-3xl shadow-lg mx-12 p-6 mb-8 overflow-x-auto max-w-full">
+            @if($pesanans->isEmpty())
+            <div class="flex flex-col items-center justify-center py-12">
+                <span class="material-icons text-gray-300 text-6xl mb-4">receipt_long</span>
+                <h3 class="text-xl font-bold text-gray-500 mb-2">Belum Ada Pesanan</h3>
+                <p class="text-gray-400 text-center">Pesanan yang dibuat akan ditampilkan di sini.</p>
+            </div>
+            @else
             <table class="w-full min-w-[1000px] text-left">
                 <thead>
                     <tr class="text-[#2d3e90] font-bold text-lg border-b-2 border-gray-100">
@@ -157,6 +164,7 @@
                     @endforeach
                 </tbody>
             </table>
+            @endif
         </div>
     </div>
 </div>

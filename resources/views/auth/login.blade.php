@@ -32,6 +32,13 @@
         <form method="POST" action="{{ route('login.post') }}" class="space-y-4">
             @csrf
 
+            <!-- Menampilkan Error jika ada -->
+            @if ($errors->any())
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <span class="block sm:inline">{{ $errors->first() }}</span>
+                </div>
+            @endif
+
             <!-- Email -->
 <!-- Email -->
 <div class="relative">
