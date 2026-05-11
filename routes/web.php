@@ -61,6 +61,10 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/layanan/{id}', [LayananController::class, 'update'])->name('layanan.update');
     Route::delete('/layanan/{id}', [LayananController::class, 'destroy'])->name('layanan.destroy');
 
+    Route::get('/laporan', function () {
+        return view('laporan');
+    })->name('laporan');
+
     Route::get('/pesanan/{id}/struk', [PesananController::class, 'generateStruk'])
         ->name('pesanan.struk');
 

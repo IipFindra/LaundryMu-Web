@@ -11,7 +11,7 @@
 
 
 {{-- Navbar hanya tampil selain login dan bukan dashboard --}}
-@if (!request()->is('login') && !request()->is('dashboard') && !request()->is('pesanan*') && !request()->is('edit-pesanan*') && !request()->is('pelanggan*') && !request()->is('layanan*'))
+@if (!request()->is('login') && !request()->is('dashboard') && !request()->is('pesanan*') && !request()->is('edit-pesanan*') && !request()->is('pelanggan*') && !request()->is('layanan*') && !request()->is('laporan'))
     @include('components.navbar')
 @endif
 
@@ -19,7 +19,7 @@
 
 
 {{-- Footer hanya tampil selain login dan bukan dashboard --}}
-@if (!request()->is('login') && !request()->is('dashboard') && !request()->is('pesanan*') && !request()->is('edit-pesanan*') && !request()->is('pelanggan*') && !request()->is('layanan*'))   
+@if (!request()->is('login') && !request()->is('dashboard') && !request()->is('pesanan*') && !request()->is('edit-pesanan*') && !request()->is('pelanggan*') && !request()->is('layanan*') && !request()->is('laporan'))
     @include('components.footer')
 @endif
 

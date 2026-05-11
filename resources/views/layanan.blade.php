@@ -32,7 +32,7 @@
                     <span class="material-icons text-3xl">assignment</span>
                     Layanan
                 </a>
-                <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
+                <a href="{{ route('laporan') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
                     <span class="material-icons text-3xl">bar_chart</span>
                     Laporan
                 </a>
