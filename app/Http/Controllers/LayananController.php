@@ -7,11 +7,26 @@ use Illuminate\Http\Request;
 
 class LayananController extends Controller
 {
-    public function index()
-    {
-        $layanans = Layanan::all();
-        return view('layanan', compact('layanans'));
-    }
+ public function index()
+{
+    $layanans = Layanan::all();
+
+    $totalLayanan = Layanan::count();
+
+    $layananAktif = Layanan::where('status', 'Aktif')->count();
+
+    $rataHarga = Layanan::avg('harga');
+
+    $layananPremium = Layanan::where('ikon', 'workspace_premium')->count();
+
+    return view('layanan', compact(
+        'layanans',
+        'totalLayanan',
+        'layananAktif',
+        'rataHarga',
+        'layananPremium'
+    ));
+}
 
     public function store(Request $request)
     {
