@@ -63,22 +63,13 @@
             <div class="flex items-center gap-3 h-full">
                 <span class="text-2xl font-bold text-[#4151a6]">Layanan Laundry</span>
             </div>
-            <div class="flex items-center gap-4">
-                <span class="material-icons text-gray-500 text-xl cursor-pointer">search</span>
-                <span class="material-icons text-gray-500 text-xl cursor-pointer">notifications</span>
-                <span class="material-icons text-gray-500 text-xl cursor-pointer">mail</span>
-                <div class="flex items-center gap-2 ml-2">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}" class="h-9 w-9 rounded-full border-2 border-white object-cover">
-                    <span class="font-semibold text-gray-700">{{ auth()->user()->name }}</span>
-                    <span class="material-icons text-gray-400 text-base">arrow_drop_down</span>
-                </div>
-            </div>
+            @include('components.header-actions')
         </header>
         <div class="h-16"></div> <!-- Spacer for fixed header -->
 
         <!-- CONTENT -->
         <div class="p-8">
-            
+                
             <!-- STATS ROW -->
             <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div class="flex gap-4 flex-1">

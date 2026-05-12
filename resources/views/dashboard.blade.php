@@ -59,39 +59,23 @@
     <!-- MAIN (shifted right for sidebar) -->
     <div class="flex-1 min-h-screen flex flex-col bg-[#eaf4fb] ml-72">
         <!-- HEADER FIXED (putih, tanpa bar biru) -->
-        <header class="fixed top-0 left-72 right-0 h-16 bg-white flex items-center justify-between px-10 z-30 border-b border-gray-100" style="min-width:0;">
+        <header class="fixed top-0 left-72 right-0 h-16 bg-white flex items-center justify-between px-10 z-30 border-b border-gray-100" style="min-width:0;z-index:50;">
             <div class="flex items-center h-full">
                 <span class="text-2xl font-bold text-[#2d3e90]">Dashboard</span>
             </div>
-            <div class="flex items-center gap-4">
-                <span class="material-icons text-gray-500 text-xl cursor-pointer">search</span>
-                <span class="material-icons text-gray-500 text-xl cursor-pointer">notifications</span>
-                <span class="material-icons text-gray-500 text-xl cursor-pointer">mail</span>
-                <div class="flex items-center gap-2 ml-2">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}" class="h-9 w-9 rounded-full border-2 border-white object-cover">
-                    <span class="font-semibold text-gray-700">{{ auth()->user()->name }}</span>
-                    <span class="material-icons text-gray-400 text-base">arrow_drop_down</span>
-                </div>
-            </div>
+            @include('components.header-actions')
         </header>
 
         <!-- SPACER agar konten tidak tertutup header -->
         <div class="h-16"></div>
 
         <!-- GREETING BAR -->
-<!-- GREETING BAR -->
-<div class="bg-[#eaf6fd] px-10 py-2 w-full">
-    <div class="flex flex-col">
-        <div class="flex items-center gap-3">
-            <span class="text-2xl font-bold text-[#2d3e90]">
-                Hi, {{ strtok(auth()->user()->name, ' ') }}!
-            </span>
-
-            <span class="text-gray-400 text-base font-medium">
-                {{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
-            </span>
-
-        </div>
+        <div class="bg-[#eaf6fd] px-10 py-2 w-full">
+            <div class="flex flex-col">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl font-bold text-[#2d3e90]">Hi, {{ strtok(auth()->user()->name, ' ') }}!</span>
+                    <span class="text-gray-400 text-base font-medium">{{ \Carbon\Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y') }}</span>
+                </div>
                 <span class="text-base text-[#2d3e90] font-semibold mt-1">Selamat Datang di Dashboard <span class="font-bold">LaundryMu</span></span>
             </div>
         </div>
@@ -203,24 +187,12 @@ new Chart(document.getElementById('chart'), {
         }]
     },
     options: {
-        plugins: {
-            legend: { display: false }
-        },
+        plugins: { legend: { display: false } },
         scales: {
             x: { grid: { display: false }, ticks: { font: { size: 13 } } },
-            y: { grid: { color: '#eaf4fb' }, beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString('id-ID'); } } }
+            y: { grid: { color: '#eaf4fb' }, beginAtZero: true, ticks: { callback: function(v) { return v.toLocaleString('id-ID'); } } }
         }
     }
 });
 </script>
-<style>
-    /* Custom scrollbar for order list */
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #eaf4fb;
-        border-radius: 8px;
-    }
-</style>
 @endsection

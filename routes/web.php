@@ -78,4 +78,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/edit-pesanan/{id}', [PesananController::class, 'updatePesanan'])
         ->name('edit.pesanan.update');
 
+    // Dashboard API Routes (Search, Notifications, Messages)
+    Route::get('/api/search', [DashboardController::class, 'search'])->name('api.search');
+    Route::post('/api/notifications/read', [DashboardController::class, 'markNotifRead'])->name('api.notif.read');
+    Route::post('/api/messages/read', [DashboardController::class, 'markMessageRead'])->name('api.message.read');
+    Route::get('/api/notifications', [DashboardController::class, 'getNotifications'])->name('api.notifications');
+    Route::get('/api/messages', [DashboardController::class, 'getMessages'])->name('api.messages');
+
 });
