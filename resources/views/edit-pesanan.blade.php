@@ -48,9 +48,12 @@
                     <div class="text-xs text-gray-200 leading-tight">{{ auth()->user()->email }}</div>
                 </div>
             </div>
-            <a href="{{ route('logout') }}" class="flex items-center gap-2 text-base font-bold bg-[#22306a] rounded-2xl px-4 py-3 hover:bg-[#1b255a] transition">
-                <span class="material-icons text-xl">logout</span> Logout
-            </a>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="flex items-center gap-2 text-base font-bold bg-[#22306a] rounded-2xl px-4 py-3 hover:bg-[#1b255a] transition w-full text-white">
+                    <span class="material-icons text-xl">logout</span> Logout
+                </button>
+            </form>
         </div>
     </aside>
 
