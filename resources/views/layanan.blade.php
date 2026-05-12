@@ -127,23 +127,27 @@
 
             <!-- FILTER ROW -->
             <div class="bg-white rounded-2xl p-3 shadow-sm border border-gray-100 mb-6 flex items-center justify-between">
-                <div class="flex items-center gap-4 flex-1">
+                <form action="{{ route('layanan') }}" method="GET" class="flex items-center gap-4 flex-1">
                     <!-- Search -->
-                    <div class="flex items-center border border-gray-300 rounded-full px-4 py-2 w-72">
+                    <div class="flex items-center border border-gray-300 rounded-full px-4 py-2 w-72 focus-within:border-[#4151a6] transition">
                         <span class="material-icons text-gray-400 text-sm mr-2">search</span>
-                        <input type="text" placeholder="Cari Layanan..." class="outline-none text-sm w-full text-gray-600">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Layanan..." class="outline-none text-sm w-full text-gray-600">
                     </div>
                     <!-- Dropdown Status -->
-                    <button class="flex items-center justify-between border border-gray-300 rounded-full px-4 py-2 w-40 text-gray-600 text-sm">
-                        <span>Semua Status</span>
-                        <span class="material-icons text-sm">chevron_right</span>
-                    </button>
-                </div>
+                    <div class="relative w-44">
+                        <select name="status" onchange="this.form.submit()" class="appearance-none w-full border border-gray-300 rounded-full px-4 py-2 pr-10 text-gray-600 text-sm bg-white cursor-pointer focus:outline-none focus:border-[#4151a6] transition">
+                            <option value="">Semua Status</option>
+                            <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                            <option value="Tidak Aktif" {{ request('status') == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                        </select>
+                        <span class="material-icons absolute right-4 top-1/2 -translate-y-1/2 text-sm pointer-events-none text-gray-400">expand_more</span>
+                    </div>
+                </form>
                 <!-- Reset Button -->
-                <button class="flex items-center gap-2 border border-gray-300 text-gray-500 rounded-full px-4 py-2 text-sm hover:bg-gray-50 transition">
+                <a href="{{ route('layanan') }}" class="flex items-center gap-2 border border-gray-300 text-gray-500 rounded-full px-4 py-2 text-sm hover:bg-gray-50 transition">
                     <span class="material-icons text-sm">refresh</span>
                     Reset Filter
-                </button>
+                </a>
             </div>
 
             <!-- CARDS GRID -->

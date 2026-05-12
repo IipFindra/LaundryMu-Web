@@ -7,9 +7,16 @@ use Illuminate\Http\Request;
 
 class LayananController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $layanans = Layanan::all();
+        $layanans = Layanan::query()
+            ->when($request->search, function ($query, $search) {
+                return $query->where('nama', 'like', '%' . $search . '%');
+            })
+            ->when($request->status, function ($query, $status) {
+                return $query->where('status', $status);
+            })
+            ->get();
 
         $totalLayanan = Layanan::count();
 
