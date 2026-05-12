@@ -7,26 +7,30 @@ use Illuminate\Http\Request;
 
 class LayananController extends Controller
 {
- public function index()
-{
-    $layanans = Layanan::all();
+    public function index()
+    {
+        $layanans = Layanan::all();
 
-    $totalLayanan = Layanan::count();
+        $totalLayanan = Layanan::count();
 
-    $layananAktif = Layanan::where('status', 'Aktif')->count();
+        $layananAktif = Layanan::where('status', 'Aktif')->count();
 
-    $rataHarga = Layanan::avg('harga');
+        $rataHarga = Layanan::avg('harga');
 
-    $layananPremium = Layanan::where('ikon', 'workspace_premium')->count();
+        $layananPremium = Layanan::where('ikon', 'workspace_premium')->count();
 
-    return view('layanan', compact(
-        'layanans',
-        'totalLayanan',
-        'layananAktif',
-        'rataHarga',
-        'layananPremium'
-    ));
-}
+        // Ambil 5 aktivitas terbaru berdasarkan updated_at
+        $aktivitas = Layanan::orderBy('updated_at', 'desc')->take(5)->get();
+
+        return view('layanan', compact(
+            'layanans',
+            'totalLayanan',
+            'layananAktif',
+            'rataHarga',
+            'layananPremium',
+            'aktivitas'
+        ));
+    }
 
     public function store(Request $request)
     {
@@ -42,9 +46,10 @@ class LayananController extends Controller
 
         $this->mapIcon($validated, $request->input('kategori_ikon'));
 
-        Layanan::create($validated);
+        $layanan = Layanan::create($validated);
 
-        return redirect()->route('layanan')->with('success', 'Layanan berhasil ditambahkan.');
+        return redirect()->route('layanan')->with('success', 'Layanan berhasil ditambahkan.')
+            ->with('aktivitas_baru', 'Layanan "' . $layanan->nama . '" berhasil ditambahkan.');
     }
 
     public function update(Request $request, $id)
@@ -65,15 +70,18 @@ class LayananController extends Controller
 
         $layanan->update($validated);
 
-        return redirect()->route('layanan')->with('success', 'Layanan berhasil diperbarui.');
+        return redirect()->route('layanan')->with('success', 'Layanan berhasil diperbarui.')
+            ->with('aktivitas_baru', 'Layanan "' . $layanan->nama . '" berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
         $layanan = Layanan::findOrFail($id);
+        $namaLayanan = $layanan->nama;
         $layanan->delete();
 
-        return redirect()->route('layanan')->with('success', 'Layanan berhasil dihapus.');
+        return redirect()->route('layanan')->with('success', 'Layanan berhasil dihapus.')
+            ->with('aktivitas_baru', 'Layanan "' . $namaLayanan . '" berhasil dihapus.');
     }
 
     private function mapIcon(&$validated, $kategori)

@@ -86,7 +86,7 @@
                         </div>
                         <div>
                             <div class="text-sm font-bold text-gray-800">Total Layanan</div>
-                            <div class="text-2xl font-bold text-black">0</div>
+                            <div class="text-2xl font-bold text-black">{{ $totalLayanan }}</div>
                             <div class="text-xs text-gray-500">Semua Layanan</div>
                         </div>
                     </div>
@@ -97,7 +97,7 @@
                         </div>
                         <div>
                             <div class="text-sm font-bold text-gray-800">Layanan Aktif</div>
-                            <div class="text-2xl font-bold text-black">0</div>
+                            <div class="text-2xl font-bold text-black">{{ $layananAktif }}</div>
                             <div class="text-xs text-gray-500">Layanan tersedia</div>
                         </div>
                     </div>
@@ -108,7 +108,7 @@
                         </div>
                         <div>
                             <div class="text-sm font-bold text-gray-800">Rata-rata Harga</div>
-                            <div class="text-2xl font-bold text-black">Rp0</div>
+                            <div class="text-2xl font-bold text-black">Rp{{ number_format($rataHarga ?? 0, 0, ',', '.') }}</div>
                             <div class="text-xs text-gray-500">Per kilogram/Satuan</div>
                         </div>
                     </div>
@@ -119,7 +119,7 @@
                         </div>
                         <div>
                             <div class="text-sm font-bold text-gray-800">Layanan Premium</div>
-                            <div class="text-2xl font-bold text-black">0</div>
+                            <div class="text-2xl font-bold text-black">{{ $layananPremium }}</div>
                             <div class="text-xs text-gray-500">Layanan Tersedia</div>
                         </div>
                     </div>
@@ -230,10 +230,52 @@
                         Lihat Semua <span class="material-icons text-sm ml-1">chevron_right</span>
                     </a>
                 </div>
-                <!-- Sample Activity Items -->
+
+                {{-- Flash notification saat ada perubahan --}}
+                @if(session('aktivitas_baru'))
+                <div id="flashNotif" class="flex items-center gap-3 bg-green-50 border border-green-200 rounded-2xl px-4 py-3 mb-4 animate-pulse">
+                    <div class="bg-green-100 text-green-600 rounded-full h-9 w-9 flex items-center justify-center shrink-0">
+                        <span class="material-icons text-lg">check_circle</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-bold text-green-700">{{ session('aktivitas_baru') }}</div>
+                        <div class="text-xs text-green-500">Baru saja</div>
+                    </div>
+                    <button onclick="document.getElementById('flashNotif').remove()" class="text-green-400 hover:text-green-600 transition">
+                        <span class="material-icons text-sm">close</span>
+                    </button>
+                </div>
+                @endif
+
+                {{-- Daftar aktivitas terbaru --}}
+                @if(count($aktivitas) > 0)
+                <div class="divide-y divide-gray-100">
+                    @foreach($aktivitas as $item)
+                    <div class="flex items-center gap-4 py-3 {{ $loop->first ? '' : '' }}">
+                        <div class="{{ $item->warna_ikon ?? 'bg-blue-100 text-blue-500' }} rounded-full h-10 w-10 flex items-center justify-center shrink-0">
+                            <span class="material-icons text-lg">{{ $item->ikon ?? 'local_laundry_service' }}</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-bold text-gray-800 truncate">{{ $item->nama }}</div>
+                            <div class="text-xs text-gray-500">{{ $item->tipe }} &bull; Rp{{ number_format($item->harga, 0, ',', '.') }} &bull;
+                                @if($item->status == 'Aktif')
+                                    <span class="text-green-600 font-semibold">Aktif</span>
+                                @else
+                                    <span class="text-red-500 font-semibold">Tidak Aktif</span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-400 whitespace-nowrap">
+                            {{ $item->updated_at->diffForHumans() }}
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @else
                 <div class="text-center text-gray-400 py-4 text-sm">
                     Belum ada aktivitas.
                 </div>
+                @endif
             </div>
 
         </div>
