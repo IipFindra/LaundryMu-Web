@@ -12,7 +12,8 @@ class DashboardController extends Controller
     public function index()
     {
         $notifikasi = Notification::orderBy('created_at', 'desc')->take(10)->get();
-        $unreadNotif = Notification::where('dibaca', false)->count();
+        // MENGGANTI 'dibaca' MENJADI 'status_baca'
+        $unreadNotif = Notification::where('status_baca', false)->count();
 
         $pesan = Message::orderBy('created_at', 'desc')->take(10)->get();
         $unreadPesan = Message::where('dibaca', false)->count();
@@ -46,7 +47,7 @@ class DashboardController extends Controller
                     'kategori' => $p->kategori,
                     'status' => $p->status,
                     'harga' => 'Rp ' . number_format($p->harga, 0, ',', '.'),
-                    'tanggal' => $p->tanggal->format('d/m/Y'),
+                    'tanggal' => $p->tanggal ? $p->tanggal->format('d/m/Y') : '-', 
                 ];
             });
 
@@ -58,13 +59,14 @@ class DashboardController extends Controller
      */
     public function markNotifRead(Request $request)
     {
+        // MENGGANTI 'dibaca' MENJADI 'status_baca' DI SELURUH BLOK NOTIFIKASI
         if ($request->has('id')) {
-            Notification::where('id', $request->id)->update(['dibaca' => true]);
+            Notification::where('id', $request->id)->update(['status_baca' => true]);
         } else {
-            Notification::where('dibaca', false)->update(['dibaca' => true]);
+            Notification::where('status_baca', false)->update(['status_baca' => true]);
         }
 
-        return response()->json(['success' => true, 'unread' => Notification::where('dibaca', false)->count()]);
+        return response()->json(['success' => true, 'unread' => Notification::where('status_baca', false)->count()]);
     }
 
     /**
@@ -87,7 +89,8 @@ class DashboardController extends Controller
     public function getNotifications()
     {
         $notifikasi = Notification::orderBy('created_at', 'desc')->take(10)->get();
-        $unread = Notification::where('dibaca', false)->count();
+        // MENGGANTI 'dibaca' MENJADI 'status_baca'
+        $unread = Notification::where('status_baca', false)->count();
 
         return response()->json(['notifikasi' => $notifikasi, 'unread' => $unread]);
     }
