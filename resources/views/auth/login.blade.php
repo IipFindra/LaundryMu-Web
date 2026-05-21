@@ -110,7 +110,7 @@
                 </label>
 
                 <a href="{{ route('password.request') }}" class="text-[#3e51b5] text-sm">
-         Lupa Password?
+         <!-- Lupa Password? -->
                 </a>
             </div>
 
