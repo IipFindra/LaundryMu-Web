@@ -12,18 +12,20 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+
     ->withMiddleware(function (Middleware $middleware) {
 
-        // ✅ TRUST PROXIES - WAJIB untuk ngrok/HTTPS
+        // TRUST PROXIES
         $middleware->trustProxies(at: '*')
             ->trustHosts(at: ['*']);
 
-        // ✅ CORS - Agar API bisa diakses dari Flutter/Browser lain
+        // CORS
         $middleware->append(HandleCors::class);
 
-        // ✅ Stateful domains untuk Sanctum (mendukung web + API hybrid)
-        $middleware->statefulApi();
     })
+
     ->withExceptions(function (Exceptions $exceptions) {
-        // Biarkan default Laravel handle exception
-    })->create();
+
+    })
+
+    ->create();

@@ -1,12 +1,12 @@
 <?php
 
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*'],
     'allowed_methods' => ['*'],
     'allowed_origins' => ['*'], // ✅ Allow semua untuk development/ngrok
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
     'max_age' => 0,
-    'supports_credentials' => true, // ✅ Penting untuk Sanctum & cookie
+    'supports_credentials' => false, // Set false karena tidak pakai Sanctum
 ];

@@ -111,23 +111,17 @@
                         <th class="py-3 px-2">Nama</th>
                         <th class="py-3 px-2">No Telepon</th>
                         <th class="py-3 px-2">Alamat</th>
-                        <!-- <th class="py-3 px-2 text-center w-32">Status</th> -->
+                        <th class="py-3 px-2">Bergabung Pada</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700 text-base">
                     @foreach($pelanggans as $pelanggan)
-                    <tr class="border-b hover:bg-gray-50 transition cursor-pointer" onclick="selectPelanggan('{{ $pelanggan->nama }}', this)" data-pelanggan-id="{{ $pelanggan->nama }}">
+                    <tr class="border-b hover:bg-gray-50 transition cursor-pointer" onclick="selectPelanggan('{{ $pelanggan->id_pelanggan }}', this)" data-pelanggan-id="{{ $pelanggan->id_pelanggan }}">
                         <td class="py-3 px-2"><input type="checkbox" class="w-4 h-4"></td>
-                        <td class="py-3 px-2 font-semibold">{{ $pelanggan->nama }}</td>
+                        <td class="py-3 px-2 font-semibold">{{ $pelanggan->nama_lengkap }}</td>
                         <td class="py-3 px-2">{{ $pelanggan->no_telepon }}</td>
                         <td class="py-3 px-2">{{ $pelanggan->alamat }}</td>
-                        <!-- <td class="py-3 px-2 text-center">
-                            @if($pelanggan->status == 'Aktif')
-                                <span class="bg-[#00c514] text-white px-4 py-1 rounded-full text-xs font-bold shadow-sm inline-block min-w-[70px] text-center">{{ $pelanggan->status }}</span>
-                            @else
-                                <span class="bg-[#e21111] text-white px-4 py-1 rounded-full text-xs font-bold shadow-sm inline-block min-w-[70px] text-center">{{ $pelanggan->status }}</span>
-                            @endif
-                        </td> -->
+                        <td class="py-3 px-2">{{ $pelanggan->created_at ? $pelanggan->created_at->format('d M Y, H:i') : '-' }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -217,9 +211,9 @@ function jalankanFilter() {
         let nama     = row.children[1].innerText.toLowerCase();
         let telepon  = row.children[2].innerText.toLowerCase();
         let alamat   = row.children[3].innerText.toLowerCase();
-        // let status   = row.children[4].innerText.toLowerCase(); // Status is commented out in HTML
+        let tanggal  = row.children[4].innerText.toLowerCase(); 
 
-        let data = nama + " " + telepon + " " + alamat;
+        let data = nama + " " + telepon + " " + alamat + " " + tanggal;
         let cocokSearch = data.includes(input);
         
         let cocokKategori = true; 
