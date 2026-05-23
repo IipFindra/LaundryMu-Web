@@ -2,11 +2,16 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LaundryController;
+use App\Http\Controllers\Api\PelangganAuthController;
 
 // Public routes
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
 Route::get('services', [LaundryController::class, 'getServices']);
+
+// Mobile Auth routes
+Route::post('login-mobile', [PelangganAuthController::class, 'loginMobile']);
+Route::post('complete-profile', [PelangganAuthController::class, 'completeProfile']);
 
 // Protected routes (butuh token)
 Route::middleware('auth:sanctum')->group(function () {

@@ -9,48 +9,48 @@
             <!-- Logo & App Name -->
             <div class="flex flex-col items-center px-6 pt-8 pb-4">
                 <div class="flex items-center gap-3">
-                    <img src="{{ asset('images/logoLaundryMu (1).png') }}" class="h-16 w-16 rounded-full bg-white p-2 shadow-lg">
-                    <span class="text-3xl font-bold tracking-wide">LaundryMu</span>
+                    <img src="{{ asset('images/logoLaundryMu (1).png') }}" class="h-14 w-14 rounded-full bg-white p-2 shadow-lg">
+                    <span class="text-2xl font-bold tracking-wide">LaundryMu</span>
                 </div>
                 <div class="w-full h-3 shadow-lg rounded-b-2xl mt-2" style="box-shadow: 0 8px 16px 0 #1b255a33;"></div>
             </div>
             <!-- Menu -->
-            <nav class="flex flex-col gap-3 px-6 mt-2">
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-bold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
-                    <span class="material-icons text-3xl">home</span>
+            <nav class="flex flex-col gap-2 px-6 mt-6">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl font-semibold text-base text-white/80 hover:text-white hover:bg-white/10 hover:translate-x-1 duration-200 transition-all">
+                    <span class="material-icons text-2xl">home</span>
                     Dashboard
                 </a>
-                <a href="{{ route('pesanan') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
-                    <span class="material-icons text-3xl">receipt_long</span>
+                <a href="{{ route('pesanan') }}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl font-semibold text-base text-white/80 hover:text-white hover:bg-white/10 hover:translate-x-1 duration-200 transition-all">
+                    <span class="material-icons text-2xl">receipt_long</span>
                     Pesanan
                 </a>
-                <a href="{{ route('pelanggan') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
-                    <span class="material-icons text-3xl">person</span>
+                <a href="{{ route('pelanggan') }}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl font-semibold text-base text-white/80 hover:text-white hover:bg-white/10 hover:translate-x-1 duration-200 transition-all">
+                    <span class="material-icons text-2xl">person</span>
                     Pelanggan
                 </a>
-                <a href="{{ route('layanan') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-bold text-lg bg-gradient-to-r from-[#22306a] to-[#314a8d] shadow focus:outline-none">
-                    <span class="material-icons text-3xl">assignment</span>
+                <a href="#" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold text-base bg-gradient-to-r from-[#22306a] to-[#314a8d] shadow-lg border-l-4 border-yellow-400 focus:outline-none">
+                    <span class="material-icons text-2xl">assignment</span>
                     Layanan
                 </a>
-                <a href="{{ route('laporan') }}" class="flex items-center gap-4 px-4 py-3 rounded-2xl font-semibold text-lg hover:bg-gradient-to-r hover:from-[#22306a] hover:to-[#314a8d] transition">
-                    <span class="material-icons text-3xl">bar_chart</span>
+                <a href="{{ route('laporan') }}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl font-semibold text-base text-white/80 hover:text-white hover:bg-white/10 hover:translate-x-1 duration-200 transition-all">
+                    <span class="material-icons text-2xl">bar_chart</span>
                     Laporan
                 </a>
             </nav>
         </div>
         <!-- Profile & Logout -->
         <div class="px-6 pb-8">
-            <div class="flex items-center gap-3 bg-[#22306a] rounded-2xl p-4 mb-3 shadow-lg">
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}" class="h-12 w-12 rounded-full border-2 border-white object-cover">
-                <div>
-                    <div class="font-bold text-base leading-tight">{{ auth()->user()->name }}</div>
-                    <div class="text-xs text-gray-200 leading-tight">{{ auth()->user()->email }}</div>
+            <div class="flex items-center gap-3 bg-[#22306a] rounded-2xl p-4 mb-3 shadow-lg border border-white/5">
+                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}" class="h-11 w-11 rounded-full border-2 border-white/20 object-cover">
+                <div class="min-w-0 flex-1">
+                    <div class="font-bold text-sm leading-tight truncate">{{ auth()->user()->name }}</div>
+                    <div class="text-[10px] text-gray-300 leading-tight truncate mt-0.5">{{ auth()->user()->email }}</div>
                 </div>
             </div>
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button type="submit" class="flex items-center gap-2 text-base font-bold bg-[#22306a] rounded-2xl px-4 py-3 hover:bg-[#1b255a] transition w-full text-white">
-                    <span class="material-icons text-xl">logout</span> Logout
+                <button type="submit" class="flex items-center justify-center gap-2 text-sm font-bold bg-white/10 border border-white/10 rounded-2xl px-4 py-3.5 hover:bg-red-500/20 hover:border-red-500/30 transition duration-200 w-full text-white">
+                    <span class="material-icons text-lg">logout</span> Logout
                 </button>
             </form>
         </div>
@@ -59,92 +59,88 @@
     <!-- MAIN -->
     <div class="flex-1 min-h-screen flex flex-col bg-[#eaf4fb] ml-72">
         <!-- HEADER FIXED -->
-        <header class="fixed top-0 left-72 right-0 h-16 bg-white flex items-center justify-between px-10 z-30 border-b border-gray-100" style="min-width:0;">
+        <header class="fixed top-0 left-72 right-0 h-16 bg-white flex items-center justify-between px-12 z-30 border-b border-slate-100" style="min-width:0;">
             <div class="flex items-center gap-3 h-full">
-                <span class="text-2xl font-bold text-[#4151a6]">Layanan Laundry</span>
+                <span class="text-2xl font-bold text-[#2d3e90]">Layanan Laundry</span>
             </div>
             @include('components.header-actions')
         </header>
         <div class="h-16"></div> <!-- Spacer for fixed header -->
 
         <!-- CONTENT -->
-        <div class="p-8">
+        <div class="px-12 py-8">
                 
             <!-- STATS ROW -->
             <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div class="flex gap-4 flex-1">
                     <!-- Stat 1 -->
-                    <div class="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 flex-1 border border-gray-100">
-                        <div class="bg-blue-100 text-blue-500 rounded-full h-12 w-12 flex items-center justify-center">
-                            <span class="material-icons">receipt_long</span>
+                    <div class="group rounded-3xl bg-white border border-slate-100 shadow-md hover:shadow-xl transition-all duration-300 p-5 flex items-center gap-4 flex-1">
+                        <div class="h-12 w-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm shrink-0">
+                            <span class="material-icons text-2xl">receipt_long</span>
                         </div>
                         <div>
-                            <div class="text-sm font-bold text-gray-800">Total Layanan</div>
-                            <div class="text-2xl font-bold text-black">{{ $totalLayanan }}</div>
-                            <div class="text-xs text-gray-500">Semua Layanan</div>
+                            <div class="text-xs font-semibold text-slate-500">Total Layanan</div>
+                            <div class="text-2xl font-extrabold text-slate-800 mt-0.5">{{ $totalLayanan }}</div>
                         </div>
                     </div>
                     <!-- Stat 2 -->
-                    <div class="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 flex-1 border border-gray-100">
-                        <div class="bg-green-100 text-green-500 rounded-full h-12 w-12 flex items-center justify-center">
-                            <span class="material-icons">check_circle</span>
+                    <div class="group rounded-3xl bg-white border border-slate-100 shadow-md hover:shadow-xl transition-all duration-300 p-5 flex items-center gap-4 flex-1">
+                        <div class="h-12 w-12 rounded-xl bg-green-50 text-green-600 flex items-center justify-center shadow-sm shrink-0">
+                            <span class="material-icons text-2xl">check_circle</span>
                         </div>
                         <div>
-                            <div class="text-sm font-bold text-gray-800">Layanan Aktif</div>
-                            <div class="text-2xl font-bold text-black">{{ $layananAktif }}</div>
-                            <div class="text-xs text-gray-500">Layanan tersedia</div>
+                            <div class="text-xs font-semibold text-slate-500">Layanan Aktif</div>
+                            <div class="text-2xl font-extrabold text-slate-800 mt-0.5">{{ $layananAktif }}</div>
                         </div>
                     </div>
                     <!-- Stat 3 -->
-                    <div class="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 flex-1 border border-gray-100">
-                        <div class="bg-orange-100 text-orange-500 rounded-full h-12 w-12 flex items-center justify-center">
-                            <span class="material-icons">payments</span>
+                    <div class="group rounded-3xl bg-white border border-slate-100 shadow-md hover:shadow-xl transition-all duration-300 p-5 flex items-center gap-4 flex-1">
+                        <div class="h-12 w-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-sm shrink-0">
+                            <span class="material-icons text-2xl">payments</span>
                         </div>
                         <div>
-                            <div class="text-sm font-bold text-gray-800">Rata-rata Harga</div>
-                            <div class="text-2xl font-bold text-black">Rp{{ number_format($rataHarga ?? 0, 0, ',', '.') }}</div>
-                            <div class="text-xs text-gray-500">Per kilogram/Satuan</div>
+                            <div class="text-xs font-semibold text-slate-500">Rata Harga</div>
+                            <div class="text-2xl font-extrabold text-slate-800 mt-0.5">Rp{{ number_format($rataHarga ?? 0, 0, ',', '.') }}</div>
                         </div>
                     </div>
                     <!-- Stat 4 -->
-                    <div class="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4 flex-1 border border-gray-100">
-                        <div class="bg-purple-100 text-purple-500 rounded-full h-12 w-12 flex items-center justify-center">
-                            <span class="material-icons">workspace_premium</span>
+                    <div class="group rounded-3xl bg-white border border-slate-100 shadow-md hover:shadow-xl transition-all duration-300 p-5 flex items-center gap-4 flex-1">
+                        <div class="h-12 w-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shadow-sm shrink-0">
+                            <span class="material-icons text-2xl">workspace_premium</span>
                         </div>
                         <div>
-                            <div class="text-sm font-bold text-gray-800">Layanan Premium</div>
-                            <div class="text-2xl font-bold text-black">{{ $layananPremium }}</div>
-                            <div class="text-xs text-gray-500">Layanan Tersedia</div>
+                            <div class="text-xs font-semibold text-slate-500">Premium</div>
+                            <div class="text-2xl font-extrabold text-slate-800 mt-0.5">{{ $layananPremium }}</div>
                         </div>
                     </div>
                 </div>
                 <!-- Tambah Button -->
-                <button onclick="openModal()" class="bg-[#4151a6] hover:bg-[#2d3e90] text-white font-bold py-4 px-6 rounded-2xl shadow-md flex items-center gap-2 transition h-full self-stretch">
+                <button onclick="openModal()" class="bg-[#4151a6] hover:bg-[#2d3e90] text-white font-bold px-6 py-4 rounded-3xl shadow-md flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all duration-200">
                     <span class="material-icons text-xl">add</span>
                     Tambah Layanan
                 </button>
             </div>
 
             <!-- FILTER ROW -->
-            <div class="bg-white rounded-2xl p-3 shadow-sm border border-gray-100 mb-6 flex items-center justify-between">
-                <form action="{{ route('layanan') }}" method="GET" class="flex items-center gap-4 flex-1">
+            <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 mb-6 flex items-center justify-between gap-4">
+                <form action="{{ route('layanan') }}" method="GET" class="flex flex-wrap items-center gap-4 flex-1">
                     <!-- Search -->
-                    <div class="flex items-center border border-gray-300 rounded-full px-4 py-2 w-72 focus-within:border-[#4151a6] transition">
-                        <span class="material-icons text-gray-400 text-sm mr-2">search</span>
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Layanan..." class="outline-none text-sm w-full text-gray-600">
+                    <div class="flex items-center border border-slate-200 rounded-full px-4 py-2 w-72 focus-within:border-[#4151a6] focus-within:ring-2 focus-within:ring-[#4151a6]/20 transition-all duration-300">
+                        <span class="material-icons text-slate-400 text-sm mr-2">search</span>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Layanan..." class="outline-none text-sm w-full text-slate-600 placeholder-slate-400 bg-transparent">
                     </div>
                     <!-- Dropdown Status -->
-                    <div class="relative w-44">
-                        <select name="status" onchange="this.form.submit()" class="appearance-none w-full border border-gray-300 rounded-full px-4 py-2 pr-10 text-gray-600 text-sm bg-white cursor-pointer focus:outline-none focus:border-[#4151a6] transition">
+                    <div class="relative w-48">
+                        <select name="status" onchange="this.form.submit()" class="appearance-none w-full border border-slate-200 rounded-full px-4 py-2 pr-10 text-slate-600 text-sm bg-white cursor-pointer focus:outline-none focus:border-[#4151a6] transition duration-200">
                             <option value="">Semua Status</option>
                             <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
                             <option value="Tidak Aktif" {{ request('status') == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
                         </select>
-                        <span class="material-icons absolute right-4 top-1/2 -translate-y-1/2 text-sm pointer-events-none text-gray-400">expand_more</span>
+                        <span class="material-icons absolute right-4 top-1/2 -translate-y-1/2 text-sm pointer-events-none text-slate-400">expand_more</span>
                     </div>
                 </form>
                 <!-- Reset Button -->
-                <a href="{{ route('layanan') }}" class="flex items-center gap-2 border border-gray-300 text-gray-500 rounded-full px-4 py-2 text-sm hover:bg-gray-50 transition">
+                <a href="{{ route('layanan') }}" class="flex items-center gap-2 border border-slate-200 text-slate-500 rounded-full px-4 py-2 text-sm hover:bg-slate-50 transition duration-200 font-semibold shadow-sm">
                     <span class="material-icons text-sm">refresh</span>
                     Reset Filter
                 </a>

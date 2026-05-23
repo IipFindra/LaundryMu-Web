@@ -18,7 +18,33 @@ class DashboardController extends Controller
         $pesan = Message::orderBy('created_at', 'desc')->take(10)->get();
         $unreadPesan = Message::where('dibaca', false)->count();
 
-        return view('dashboard', compact('notifikasi', 'unreadNotif', 'pesan', 'unreadPesan'));
+        // Statistik Dinamis
+        $totalPesananBaru = Pesanan::where('status', '!=', 'Selesai')->count();
+        $totalPelanggan = Pesanan::distinct('nama_pelanggan')->count('nama_pelanggan');
+        $totalPendapatan = Pesanan::sum('harga');
+        $totalPesananSelesai = Pesanan::where('status', 'Selesai')->count();
+
+        // Pesanan Terbaru (ambil 5 pesanan terakhir)
+        $pesananTerbaru = Pesanan::orderBy('created_at', 'desc')->take(5)->get();
+
+        // Ambil data pendapatan 7 bulan terakhir secara dinamis
+        $chartMonths = [];
+        $chartRevenue = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = \Carbon\Carbon::now()->subMonths($i);
+            $chartMonths[] = $date->locale('id')->isoFormat('MMMM');
+            
+            $revenue = Pesanan::whereYear('tanggal', $date->year)
+                ->whereMonth('tanggal', $date->month)
+                ->sum('harga');
+            $chartRevenue[] = (int) $revenue;
+        }
+
+        return view('dashboard', compact(
+            'notifikasi', 'unreadNotif', 'pesan', 'unreadPesan',
+            'totalPesananBaru', 'totalPelanggan', 'totalPendapatan', 'totalPesananSelesai',
+            'pesananTerbaru', 'chartMonths', 'chartRevenue'
+        ));
     }
 
     /**
