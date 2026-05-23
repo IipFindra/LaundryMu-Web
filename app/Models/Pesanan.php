@@ -19,4 +19,9 @@ class Pesanan extends Model
     protected $casts = [
         'tanggal' => 'date',
     ];
+
+    public function service()
+    {
+        return $this->belongsTo(Layanan::class, 'kategori', 'nama');
+    }
 }

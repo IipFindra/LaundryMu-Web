@@ -20,6 +20,14 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
+     * Beritahu Laravel untuk membaca tabel 'admin' (atau 'admins') di Supabase,
+     * bukan mencari tabel 'users'.
+     */
+    protected $table = 'admin'; // <--- TAMBAHKAN BARIS INI (Sesuaikan jika nama tabel Anda 'admins')
+    protected $primaryKey = 'id_admin';
+
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

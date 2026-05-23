@@ -51,7 +51,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Pelanggan
     Route::get('/pelanggan', function () {
-        $pelanggans = [];
+        $pelanggans = App\Models\Pelanggan::latest()->get();
         return view('pelanggan', compact('pelanggans'));
     })->name('pelanggan');
 

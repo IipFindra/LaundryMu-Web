@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Service;
+use App\Models\Layanan;
 
 class LaundryController extends Controller
 {
     public function getServices()
     {
-        $services = Service::all();
+        $services = Layanan::all();
         return response()->json([
             'success' => true,
             'data' => $services

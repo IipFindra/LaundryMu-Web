@@ -12,12 +12,39 @@ class DashboardController extends Controller
     public function index()
     {
         $notifikasi = Notification::orderBy('created_at', 'desc')->take(10)->get();
-        $unreadNotif = Notification::where('dibaca', false)->count();
+        // MENGGANTI 'dibaca' MENJADI 'status_baca'
+        $unreadNotif = Notification::where('status_baca', false)->count();
 
         $pesan = Message::orderBy('created_at', 'desc')->take(10)->get();
         $unreadPesan = Message::where('dibaca', false)->count();
 
-        return view('dashboard', compact('notifikasi', 'unreadNotif', 'pesan', 'unreadPesan'));
+        // Statistik Dinamis
+        $totalPesananBaru = Pesanan::where('status', '!=', 'Selesai')->count();
+        $totalPelanggan = Pesanan::distinct('nama_pelanggan')->count('nama_pelanggan');
+        $totalPendapatan = Pesanan::sum('harga');
+        $totalPesananSelesai = Pesanan::where('status', 'Selesai')->count();
+
+        // Pesanan Terbaru (ambil 5 pesanan terakhir)
+        $pesananTerbaru = Pesanan::orderBy('created_at', 'desc')->take(5)->get();
+
+        // Ambil data pendapatan 7 bulan terakhir secara dinamis
+        $chartMonths = [];
+        $chartRevenue = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = \Carbon\Carbon::now()->subMonths($i);
+            $chartMonths[] = $date->locale('id')->isoFormat('MMMM');
+            
+            $revenue = Pesanan::whereYear('tanggal', $date->year)
+                ->whereMonth('tanggal', $date->month)
+                ->sum('harga');
+            $chartRevenue[] = (int) $revenue;
+        }
+
+        return view('dashboard', compact(
+            'notifikasi', 'unreadNotif', 'pesan', 'unreadPesan',
+            'totalPesananBaru', 'totalPelanggan', 'totalPendapatan', 'totalPesananSelesai',
+            'pesananTerbaru', 'chartMonths', 'chartRevenue'
+        ));
     }
 
     /**
@@ -46,7 +73,7 @@ class DashboardController extends Controller
                     'kategori' => $p->kategori,
                     'status' => $p->status,
                     'harga' => 'Rp ' . number_format($p->harga, 0, ',', '.'),
-                    'tanggal' => $p->tanggal->format('d/m/Y'),
+                    'tanggal' => $p->tanggal ? $p->tanggal->format('d/m/Y') : '-', 
                 ];
             });
 
@@ -58,13 +85,14 @@ class DashboardController extends Controller
      */
     public function markNotifRead(Request $request)
     {
+        // MENGGANTI 'dibaca' MENJADI 'status_baca' DI SELURUH BLOK NOTIFIKASI
         if ($request->has('id')) {
-            Notification::where('id', $request->id)->update(['dibaca' => true]);
+            Notification::where('id', $request->id)->update(['status_baca' => true]);
         } else {
-            Notification::where('dibaca', false)->update(['dibaca' => true]);
+            Notification::where('status_baca', false)->update(['status_baca' => true]);
         }
 
-        return response()->json(['success' => true, 'unread' => Notification::where('dibaca', false)->count()]);
+        return response()->json(['success' => true, 'unread' => Notification::where('status_baca', false)->count()]);
     }
 
     /**
@@ -87,7 +115,8 @@ class DashboardController extends Controller
     public function getNotifications()
     {
         $notifikasi = Notification::orderBy('created_at', 'desc')->take(10)->get();
-        $unread = Notification::where('dibaca', false)->count();
+        // MENGGANTI 'dibaca' MENJADI 'status_baca'
+        $unread = Notification::where('status_baca', false)->count();
 
         return response()->json(['notifikasi' => $notifikasi, 'unread' => $unread]);
     }

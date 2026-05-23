@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+<<<<<<< HEAD
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -14,6 +15,15 @@ class AuthController extends Controller
     /**
      * Handle login for both Web (session) and API (Sanctum token)
      */
+=======
+use Illuminate\Support\Facades\DB;
+
+class AuthController extends Controller
+{
+    // =========================
+    // LOGIN ADMIN WEB
+    // =========================
+>>>>>>> 161fbaf92b638b4216c0176ef74089ec82922b86
     public function login(Request $request)
     {
         // Validasi input
@@ -22,6 +32,7 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+<<<<<<< HEAD
         // Coba authenticate user
         if (!Auth::attempt($credentials)) {
             // ─── Response untuk API (Mobile Flutter) ───
@@ -36,6 +47,15 @@ class AuthController extends Controller
             return back()->withErrors([
                 'email' => 'Email atau password salah.',
             ])->withInput();
+=======
+        if (Auth::attempt($credentials)) {
+
+            $request->session()->regenerate();
+
+            return redirect()
+                ->route('dashboard')
+                ->with('success', 'Login berhasil!');
+>>>>>>> 161fbaf92b638b4216c0176ef74089ec82922b86
         }
 
         $user = Auth::user();
@@ -70,6 +90,7 @@ class AuthController extends Controller
         return redirect()->route('dashboard')->with('success', 'Login berhasil!');
     }
 
+<<<<<<< HEAD
     /**
      * Handle register for API / web
      */
@@ -114,6 +135,109 @@ class AuthController extends Controller
     /**
      * Handle logout for both Web and API
      */
+=======
+    // =========================
+    // LOGIN MOBILE FLUTTER
+    // =========================
+   public function loginMobile(Request $request)
+    {
+        $nomor = $request->no_telepon ?? $request->phone;
+
+        if (!$nomor) {
+            return response()->json([
+                'success' => false,
+                'message' => 'no_telepon is required'
+            ], 400);
+        }
+
+        // CEK PELANGGAN
+        $pelanggan = DB::table('pelanggan')
+            ->where('no_telepon', $nomor)
+            ->first();
+
+        // JIKA SUDAH ADA
+        if ($pelanggan) {
+            return response()->json([
+                'success' => true,
+                'is_new_user' => false,
+                'access_token' => 'dummy_token',
+                'data' => $pelanggan,
+            ]);
+        }
+
+        // JIKA BELUM ADA
+        $id = DB::table('pelanggan')
+            ->insertGetId([
+                'nama_lengkap' => '',
+                'no_telepon' => $nomor,
+                'alamat' => '',
+                'otp_code' => null,
+                'otp_expires_at' => null,
+                'created_at' => now(),
+            ], 'id_pelanggan');
+
+        $pelangganBaru = DB::table('pelanggan')
+            ->where('id_pelanggan', $id)
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'is_new_user' => true,
+            'access_token' => 'dummy_token',
+            'data' => $pelangganBaru,
+        ]);
+    }
+
+    // =========================
+    // COMPLETE PROFILE FLUTTER
+    // =========================
+    public function completeProfile(Request $request)
+    {
+        $nomor = $request->no_telepon ?? $request->phone;
+
+        if (!$nomor) {
+            return response()->json([
+                'success' => false,
+                'message' => 'no_telepon is required'
+            ], 400);
+        }
+
+        $pelanggan = DB::table('pelanggan')
+            ->where('no_telepon', $nomor)
+            ->first();
+
+        if (!$pelanggan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pelanggan tidak ditemukan'
+            ], 404);
+        }
+
+        $namaLengkap = $request->input('nama_lengkap', '');
+        $alamat = $request->input('alamat', '');
+
+        DB::table('pelanggan')
+            ->where('no_telepon', $nomor)
+            ->update([
+                'nama_lengkap' => $namaLengkap,
+                'alamat' => $alamat,
+            ]);
+
+        $updatedPelanggan = DB::table('pelanggan')
+            ->where('no_telepon', $nomor)
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil berhasil diperbarui',
+            'data' => $updatedPelanggan,
+        ]);
+    }
+
+    // =========================
+    // LOGOUT
+    // =========================
+>>>>>>> 161fbaf92b638b4216c0176ef74089ec82922b86
     public function logout(Request $request)
     {
         $user = Auth::user();
@@ -134,9 +258,12 @@ class AuthController extends Controller
 
         // ─── WEB LOGOUT (Browser) ───
         Auth::logout();
+
         $request->session()->invalidate();
+
         $request->session()->regenerateToken();
 
+<<<<<<< HEAD
         return redirect('/login')->with('success', 'Logout berhasil!');
     }
 
@@ -160,5 +287,8 @@ class AuthController extends Controller
                 'email' => $request->user()->email,
             ]
         ], 200);
+=======
+        return redirect('/login');
+>>>>>>> 161fbaf92b638b4216c0176ef74089ec82922b86
     }
 }
