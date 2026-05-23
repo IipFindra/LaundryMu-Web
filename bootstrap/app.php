@@ -13,17 +13,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-
-        // ✅ TRUST PROXIES - WAJIB untuk ngrok/HTTPS
+        // ✅ 1. Trust semua proxy (biar Laravel percaya HTTPS dari ngrok)
         $middleware->trustProxies(at: '*')
             ->trustHosts(at: ['*']);
 
-        // ✅ CORS - Agar API bisa diakses dari Flutter/Browser lain
+        // ✅ 2. Aktifkan CORS untuk API & Browser
         $middleware->append(HandleCors::class);
 
-        // ✅ Stateful domains untuk Sanctum (mendukung web + API hybrid)
+        // ✅ 3. Stateful API untuk Sanctum & Cookie Session
         $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Biarkan default Laravel handle exception
+        // Biarkan Laravel handle error default
     })->create();

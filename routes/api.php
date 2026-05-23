@@ -13,6 +13,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('orders', [LaundryController::class, 'getOrders']);
     Route::post('orders', [LaundryController::class, 'createOrder']);
     Route::post('logout', [AuthController::class, 'logout']);
+    Route::get('me', [AuthController::class, 'me']);
 });
 
 // Test route
