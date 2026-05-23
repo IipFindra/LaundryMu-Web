@@ -86,7 +86,7 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'host' => env('DB_HOST', 'aws-1-ap-southeast-2.pooler.supabase.com'),
+            'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'postgres'),
             'username' => env('DB_USERNAME', 'postgres'),
@@ -184,3 +184,4 @@ return [
     ],
 
 ];
+ 

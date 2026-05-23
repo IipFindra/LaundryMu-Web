@@ -19,7 +19,11 @@ Route::middleware([])->group(function () {
     Route::get('orders', [LaundryController::class, 'getOrders']);
     Route::post('orders', [LaundryController::class, 'createOrder']);
     Route::post('logout', [AuthController::class, 'logout']);
+<<<<<<< HEAD
 
+=======
+    Route::get('me', [AuthController::class, 'me']);
+>>>>>>> 807a3ec954239d287c94e6eec644874df2ace0cb
 });
 
 // Test route
