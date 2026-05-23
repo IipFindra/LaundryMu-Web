@@ -112,16 +112,22 @@
                         <th class="py-3 px-2">No Telepon</th>
                         <th class="py-3 px-2">Alamat</th>
                         <th class="py-3 px-2">Bergabung Pada</th>
+                        <th class="py-3 px-2 text-center w-24">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700 text-base">
                     @foreach($pelanggans as $pelanggan)
                     <tr class="border-b hover:bg-gray-50 transition cursor-pointer" onclick="selectPelanggan('{{ $pelanggan->id_pelanggan }}', this)" data-pelanggan-id="{{ $pelanggan->id_pelanggan }}">
-                        <td class="py-3 px-2"><input type="checkbox" class="w-4 h-4"></td>
+                        <td class="py-3 px-2" onclick="event.stopPropagation();"><input type="checkbox" class="w-4 h-4"></td>
                         <td class="py-3 px-2 font-semibold">{{ $pelanggan->nama_lengkap }}</td>
                         <td class="py-3 px-2">{{ $pelanggan->no_telepon }}</td>
                         <td class="py-3 px-2">{{ $pelanggan->alamat }}</td>
                         <td class="py-3 px-2">{{ $pelanggan->created_at ? $pelanggan->created_at->format('d M Y, H:i') : '-' }}</td>
+                        <td class="py-3 px-2 text-center" onclick="event.stopPropagation();">
+                            <button onclick="openChatFromRow('{{ $pelanggan->id_pelanggan }}', '{{ addslashes($pelanggan->nama_lengkap) }}', event)" class="bg-green-600 hover:bg-green-700 text-white rounded-xl p-2 transition hover:scale-105 active:scale-95 inline-flex items-center justify-center shadow-sm" title="Chat dengan Pelanggan">
+                                <span class="material-icons text-base">chat</span>
+                            </button>
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -155,7 +161,7 @@ function selectPelanggan(pelangganId, rowElement) {
 
     const editButton = document.getElementById("editButton");
     editButton.disabled = false;
-    editButton.classList.remove("bg-gray-300", "text-gray-500", "cursor-not-allowed");
+    editButton.classList.remove("bg-slate-300", "text-slate-500", "cursor-not-allowed");
     editButton.classList.add("bg-[#4151a6]", "text-white", "hover:bg-[#2d3e90]");
 }
 
@@ -228,4 +234,212 @@ function jalankanFilter() {
     });
 }
 </script>
+
+<!-- CHAT MODAL -->
+<div id="chatModal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+    <div class="absolute inset-0 bg-black/55 backdrop-blur-sm" onclick="closeChatModal()"></div>
+    <div class="relative bg-white rounded-3xl w-full max-w-xl shadow-2xl flex flex-col h-[550px] overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-[#3a4ca3] to-[#4b63c3] text-white px-6 py-4 flex items-center justify-between shadow-md">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center font-bold text-sm" id="chatAvatar">
+                    PL
+                </div>
+                <div>
+                    <h3 class="font-bold text-base leading-tight" id="chatTitle">Chat Pelanggan</h3>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        <span class="h-2 w-2 rounded-full bg-green-400 inline-block animate-pulse"></span>
+                        <span class="text-[10px] text-white/80">Online</span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeChatModal()" class="h-8 w-8 rounded-full hover:bg-white/10 flex items-center justify-center transition">
+                <span class="material-icons text-lg">close</span>
+            </button>
+        </div>
+        
+        <!-- Messages Container -->
+        <div class="flex-1 p-6 overflow-y-auto bg-slate-50 space-y-4 custom-scrollbar flex flex-col" id="chatMessages">
+            <!-- Messages will be rendered dynamically here -->
+            <div class="text-center text-slate-400 py-12 flex flex-col items-center justify-center gap-2">
+                <span class="material-icons text-4xl animate-spin text-[#4151a6]">loop</span>
+                <span class="text-sm">Memuat pesan...</span>
+            </div>
+        </div>
+        
+        <!-- Input Container -->
+        <form id="chatForm" onsubmit="sendChatMessage(event)" class="border-t border-slate-100 p-4 bg-white flex items-center gap-3">
+            <input type="text" id="chatInput" placeholder="Ketik pesan di sini..." autocomplete="off" class="flex-1 bg-slate-50 border border-slate-200 rounded-full px-5 py-3 text-sm focus:outline-none focus:border-[#4151a6] focus:ring-2 focus:ring-[#4151a6]/10 transition-all duration-200">
+            <button type="submit" class="h-11 w-11 rounded-full bg-[#4151a6] hover:bg-[#2d3e90] text-white flex items-center justify-center shadow-md transition duration-200 hover:scale-[1.05] active:scale-95 flex-shrink-0">
+                <span class="material-icons text-lg">send</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+let chatPollInterval = null;
+let chatCustomerName = null;
+
+function openChatFromRow(pelangganId, namaLengkap, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    openChatModal(namaLengkap);
+}
+
+function openChatModal(customerName) {
+    chatCustomerName = customerName;
+    if (!chatCustomerName) return;
+
+    const modal = document.getElementById("chatModal");
+    const avatar = document.getElementById("chatAvatar");
+    const title = document.getElementById("chatTitle");
+    const container = document.getElementById("chatMessages");
+
+    title.innerText = "Chat dengan " + chatCustomerName;
+    avatar.innerText = chatCustomerName.substring(0, 2).toUpperCase();
+
+    // Show modal
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+
+    // Clear previous items
+    container.innerHTML = `
+        <div class="text-center text-slate-400 py-12 flex flex-col items-center justify-center gap-2 my-auto">
+            <span class="material-icons text-4xl animate-spin text-[#4151a6]">loop</span>
+            <span class="text-sm">Memuat pesan...</span>
+        </div>
+    `;
+
+    // Load messages immediately
+    loadChatMessages();
+
+    // Poll messages every 3 seconds
+    if (chatPollInterval) clearInterval(chatPollInterval);
+    chatPollInterval = setInterval(loadChatMessages, 3000);
+}
+
+function closeChatModal() {
+    const modal = document.getElementById("chatModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+
+    if (chatPollInterval) {
+        clearInterval(chatPollInterval);
+        chatPollInterval = null;
+    }
+}
+
+function loadChatMessages() {
+    if (!chatCustomerName) return;
+    const url = `/api/chat/${encodeURIComponent(chatCustomerName)}`;
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById("chatMessages");
+            
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-slate-400 gap-2 my-auto">
+                        <span class="material-icons text-4xl">chat_bubble_outline</span>
+                        <span class="text-xs">Belum ada obrolan dengan pelanggan ini.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = "";
+            data.forEach(msg => {
+                if (msg.is_admin) {
+                    // Admin bubble (right aligned, indigo)
+                    html += `
+                        <div class="flex flex-col items-end self-end max-w-[85%]">
+                            <div class="bg-[#4151a6] text-white px-4 py-2.5 rounded-2xl rounded-tr-none text-sm shadow-sm leading-relaxed">
+                                ${escapeHtml(msg.message)}
+                            </div>
+                            <span class="text-[9px] text-slate-400 mt-1 mr-1">${msg.time}</span>
+                        </div>
+                    `;
+                } else {
+                    // Customer bubble (left aligned, white)
+                    html += `
+                        <div class="flex flex-col items-start self-start max-w-[85%]">
+                            <div class="bg-white text-slate-800 border border-slate-100 px-4 py-2.5 rounded-2xl rounded-tl-none text-sm shadow-sm leading-relaxed">
+                                ${escapeHtml(msg.message)}
+                            </div>
+                            <span class="text-[9px] text-slate-400 mt-1 ml-1">${msg.time}</span>
+                        </div>
+                    `;
+                }
+            });
+
+            const scrollDown = container.scrollTop + container.clientHeight >= container.scrollHeight - 60;
+            container.innerHTML = html;
+            
+            if (scrollDown || container.getAttribute('data-first-load') !== 'false') {
+                container.scrollTop = container.scrollHeight;
+                container.setAttribute('data-first-load', 'false');
+            }
+        });
+}
+
+function sendChatMessage(event) {
+    event.preventDefault();
+    if (!chatCustomerName) return;
+
+    const input = document.getElementById("chatInput");
+    const msgText = input.value.trim();
+    if (!msgText) return;
+
+    input.value = "";
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+
+    fetch('/api/chat/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify({
+            customer_name: chatCustomerName,
+            message: msgText
+        })
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            loadChatMessages();
+        }
+    });
+}
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+</script>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+</style>
 @endsection

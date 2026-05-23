@@ -131,4 +131,65 @@ class DashboardController extends Controller
 
         return response()->json(['pesan' => $pesan, 'unread' => $unread]);
     }
+
+    /**
+     * Get chat history with a customer
+     */
+    public function getChatHistory($customerName)
+    {
+        $messages = Message::where('tipe', 'chat_pelanggan')
+            ->where(function($query) use ($customerName) {
+                $query->where('nama_pengirim', $customerName)
+                      ->orWhere('subjek', $customerName);
+            })
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(function($msg) {
+                return [
+                    'id' => $msg->id,
+                    'sender' => $msg->nama_pengirim,
+                    'message' => $msg->pesan,
+                    'time' => $msg->created_at->locale('id')->diffForHumans(),
+                    'is_admin' => $msg->nama_pengirim === 'Admin',
+                ];
+            });
+
+        // Mark unread messages from this customer as read
+        Message::where('tipe', 'chat_pelanggan')
+            ->where('nama_pengirim', $customerName)
+            ->where('dibaca', false)
+            ->update(['dibaca' => true]);
+
+        return response()->json($messages);
+    }
+
+    /**
+     * Send a chat message to a customer
+     */
+    public function sendChatMessage(Request $request)
+    {
+        $request->validate([
+            'customer_name' => 'required|string',
+            'message' => 'required|string',
+        ]);
+
+        $msg = Message::create([
+            'nama_pengirim' => 'Admin',
+            'subjek' => $request->customer_name,
+            'pesan' => $request->message,
+            'tipe' => 'chat_pelanggan',
+            'dibaca' => true,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => [
+                'id' => $msg->id,
+                'sender' => 'Admin',
+                'message' => $msg->pesan,
+                'time' => 'Baru saja',
+                'is_admin' => true,
+            ]
+        ]);
+    }
 }

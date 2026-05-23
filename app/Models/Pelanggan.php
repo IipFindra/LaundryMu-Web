@@ -33,4 +33,9 @@ class Pelanggan extends Authenticatable
     {
         return $this->hasMany(Pesanan::class, 'nama_pelanggan', 'nama_lengkap');
     }
+
+    public function getNamaAttribute()
+    {
+        return $this->nama_lengkap;
+    }
 }
