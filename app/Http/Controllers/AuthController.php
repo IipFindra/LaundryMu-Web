@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-<<<<<<< HEAD
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
@@ -15,15 +15,6 @@ class AuthController extends Controller
     /**
      * Handle login for both Web (session) and API (Sanctum token)
      */
-=======
-use Illuminate\Support\Facades\DB;
-
-class AuthController extends Controller
-{
-    // =========================
-    // LOGIN ADMIN WEB
-    // =========================
->>>>>>> 161fbaf92b638b4216c0176ef74089ec82922b86
     public function login(Request $request)
     {
         // Validasi input
@@ -32,7 +23,6 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-<<<<<<< HEAD
         // Coba authenticate user
         if (!Auth::attempt($credentials)) {
             // ─── Response untuk API (Mobile Flutter) ───
@@ -47,15 +37,6 @@ class AuthController extends Controller
             return back()->withErrors([
                 'email' => 'Email atau password salah.',
             ])->withInput();
-=======
-        if (Auth::attempt($credentials)) {
-
-            $request->session()->regenerate();
-
-            return redirect()
-                ->route('dashboard')
-                ->with('success', 'Login berhasil!');
->>>>>>> 161fbaf92b638b4216c0176ef74089ec82922b86
         }
 
         $user = Auth::user();
@@ -90,7 +71,6 @@ class AuthController extends Controller
         return redirect()->route('dashboard')->with('success', 'Login berhasil!');
     }
 
-<<<<<<< HEAD
     /**
      * Handle register for API / web
      */
@@ -132,14 +112,10 @@ class AuthController extends Controller
         return redirect()->route('dashboard')->with('success', 'Register berhasil!');
     }
 
-    /**
-     * Handle logout for both Web and API
-     */
-=======
     // =========================
     // LOGIN MOBILE FLUTTER
     // =========================
-   public function loginMobile(Request $request)
+    public function loginMobile(Request $request)
     {
         $nomor = $request->no_telepon ?? $request->phone;
 
@@ -234,10 +210,9 @@ class AuthController extends Controller
         ]);
     }
 
-    // =========================
-    // LOGOUT
-    // =========================
->>>>>>> 161fbaf92b638b4216c0176ef74089ec82922b86
+    /**
+     * Handle logout for both Web and API
+     */
     public function logout(Request $request)
     {
         $user = Auth::user();
@@ -263,7 +238,6 @@ class AuthController extends Controller
 
         $request->session()->regenerateToken();
 
-<<<<<<< HEAD
         return redirect('/login')->with('success', 'Logout berhasil!');
     }
 
@@ -287,8 +261,5 @@ class AuthController extends Controller
                 'email' => $request->user()->email,
             ]
         ], 200);
-=======
-        return redirect('/login');
->>>>>>> 161fbaf92b638b4216c0176ef74089ec82922b86
     }
 }
