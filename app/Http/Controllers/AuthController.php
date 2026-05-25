@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Laravel\Sanctum\PersonalAccessToken;
+
 
 class AuthController extends Controller
 {
     /**
-     * Handle login for both Web (session) and API (Sanctum token)
+     * Handle login for both Web (session) and API (simple token)
      */
     public function login(Request $request)
     {
@@ -43,8 +43,8 @@ class AuthController extends Controller
 
         // ─── API RESPONSE (Mobile Flutter) ───
         if ($request->expectsJson() || $request->is('api/*')) {
-            // Buat Sanctum token untuk mobile
-            $token = $user->createToken('FlutterApp')->plainTextToken;
+            // Simple token tanpa Sanctum
+            $token = bin2hex(random_bytes(32));
 
             Log::info('Login API berhasil', ['user_id' => $user->id]);
 
@@ -89,7 +89,8 @@ class AuthController extends Controller
         ]);
 
         if ($request->expectsJson() || $request->is('api/*')) {
-            $token = $user->createToken('FlutterApp')->plainTextToken;
+            // Simple token tanpa Sanctum
+            $token = bin2hex(random_bytes(32));
 
             return response()->json([
                 'success' => true,
@@ -219,12 +220,7 @@ class AuthController extends Controller
 
         // ─── API LOGOUT (Mobile Flutter) ───
         if ($request->expectsJson() || $request->is('api/*')) {
-            $token = $user?->currentAccessToken();
-            if ($token instanceof PersonalAccessToken) {
-                // Hapus token yang sedang dipakai
-                $token->delete();
-            }
-
+            // Tidak ada Sanctum token untuk dihapus
             return response()->json([
                 'success' => true,
                 'message' => 'Logout berhasil',

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; // ✅ 1. TAMBAHKAN IMPORT INI
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
@@ -17,7 +16,7 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     // ✅ 2. TAMBAHKAN HasApiTokens DI SINI
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
     /**
      * Beritahu Laravel untuk membaca tabel 'admin' (atau 'admins') di Supabase,

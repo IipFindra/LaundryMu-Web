@@ -20,9 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // ✅ 2. Aktifkan CORS untuk API & Browser
         $middleware->append(HandleCors::class);
-
-        // ✅ 3. Stateful API untuk Sanctum & Cookie Session
-        $middleware->statefulApi();
     })
 
     ->withExceptions(function (Exceptions $exceptions) {
