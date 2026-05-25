@@ -3,7 +3,7 @@
 @section('content')
 <div class="bg-[#eaf4fb] font-sans min-h-screen flex">
     <!-- SIDEBAR -->
-    <aside class="fixed left-0 top-0 h-screen w-72 bg-gradient-to-b from-[#3a4ca3] via-[#4b63c3] to-[#4151a6] text-white flex flex-col justify-between shadow-xl z-20">
+    <aside class="fixed left-0 top-0 h-screen w-56 lg:w-64 xl:w-72 bg-gradient-to-b from-[#3a4ca3] via-[#4b63c3] to-[#4151a6] text-white flex flex-col justify-between shadow-xl z-20">
         <div>
             <!-- Logo & App Name -->
             <div class="flex flex-col items-center px-6 pt-8 pb-4">
@@ -56,9 +56,9 @@
     </aside>
 
     <!-- MAIN (shifted right for sidebar) -->
-    <div class="flex-1 min-h-screen flex flex-col bg-[#eaf4fb] ml-72">
+    <div class="flex-1 min-h-screen flex flex-col bg-[#eaf4fb] ml-56 lg:ml-64 xl:ml-72">
         <!-- HEADER FIXED (putih, tanpa bar biru) -->
-        <header class="fixed top-0 left-72 right-0 h-16 bg-white flex items-center justify-between px-12 z-30 border-b border-slate-100" style="min-width:0;z-index:50;">
+        <header class="fixed top-0 left-56 lg:left-64 xl:left-72 right-0 h-16 bg-white flex items-center justify-between px-6 lg:px-8 xl:px-12 z-30 border-b border-slate-100" style="min-width:0;z-index:50;">
             <div class="flex items-center h-full">
                 <span class="text-2xl font-bold text-[#2d3e90]">Dashboard</span>
             </div>
@@ -69,7 +69,7 @@
         <div class="h-16"></div>
 
         <!-- GREETING BAR -->
-        <div class="bg-[#eaf6fd] px-12 py-4 w-full border-b border-slate-100">
+        <div class="bg-[#eaf6fd] px-6 lg:px-8 xl:px-12 py-4 w-full border-b border-slate-100">
             <div class="flex flex-col">
                 <div class="flex items-center gap-3">
                     <span class="text-2xl font-bold text-[#2d3e90]">Hi, {{ strtok(auth()->user()->name, ' ') }}!</span>
@@ -80,7 +80,7 @@
         </div>
 
         <!-- CARDS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-12 mt-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6 px-6 lg:px-8 xl:px-12 mt-8">
 
             <!-- CARD: Pesanan Baru -->
             <div onclick="window.location.href='{{ route('pesanan') }}'" class="group rounded-3xl bg-white border border-slate-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between cursor-pointer">
@@ -157,7 +157,7 @@
         </div>
 
         <!-- CONTENT -->
-        <div class="flex flex-col lg:flex-row gap-6 px-12 mt-6 pb-12">
+        <div class="flex flex-col lg:flex-row gap-6 px-6 lg:px-8 xl:px-12 mt-6 pb-12">
 
             <!-- CHART CARD -->
             <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-50 flex-1 flex flex-col justify-between min-w-[0]">

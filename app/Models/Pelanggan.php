@@ -37,6 +37,11 @@ class Pelanggan extends Authenticatable
         );
     }
 
+    public function pesanans()
+    {
+        return $this->hasMany(Pesanan::class, 'id_pelanggan', 'id_pelanggan');
+    }
+
     public function getNamaAttribute()
     {
         return $this->nama_lengkap;

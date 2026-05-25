@@ -4,7 +4,7 @@
 <div class="bg-[#eaf4fb] font-sans min-h-screen flex">
 
     <!-- SIDEBAR -->
-    <aside class="fixed left-0 top-0 h-screen w-72 bg-gradient-to-b from-[#3a4ca3] via-[#4b63c3] to-[#4151a6] text-white flex flex-col justify-between shadow-xl z-20">
+    <aside class="fixed left-0 top-0 h-screen w-56 lg:w-64 xl:w-72 bg-gradient-to-b from-[#3a4ca3] via-[#4b63c3] to-[#4151a6] text-white flex flex-col justify-between shadow-xl z-20">
         <div>
             <!-- Logo & App Name -->
             <div class="flex flex-col items-center px-6 pt-8 pb-4">
@@ -57,9 +57,9 @@
     </aside>
 
     <!-- MAIN (shifted right for sidebar) -->
-    <div class="flex-1 min-h-screen flex flex-col bg-[#eaf4fb] ml-72">
+    <div class="flex-1 min-h-screen flex flex-col bg-[#eaf4fb] ml-56 lg:ml-64 xl:ml-72">
         <!-- HEADER FIXED -->
-        <header class="fixed top-0 left-72 right-0 h-16 bg-white flex items-center justify-between px-12 z-30 border-b border-slate-100" style="min-width:0;">
+        <header class="fixed top-0 left-56 lg:left-64 xl:left-72 right-0 h-16 bg-white flex items-center justify-between px-6 lg:px-8 xl:px-12 z-30 border-b border-slate-100" style="min-width:0;">
             <div class="flex items-center gap-3 h-full">
                 <span class="text-2xl font-bold text-[#2d3e90]">Manajemen Pesanan</span>
             </div>
@@ -69,7 +69,7 @@
 
         {{-- SUCCESS FLASH MESSAGE --}}
         @if(session('success'))
-        <div id="flashSuccess" class="mx-12 mt-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl px-5 py-3 flex items-center gap-2 shadow-sm">
+        <div id="flashSuccess" class="mx-6 lg:mx-8 xl:mx-12 mt-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl px-5 py-3 flex items-center gap-2 shadow-sm">
             <span class="material-icons text-green-600 text-lg">check_circle</span>
             <span class="font-semibold text-sm">{{ session('success') }}</span>
         </div>
@@ -77,7 +77,7 @@
         @endif
 
         <!-- SEARCH & ACTIONS -->
-        <div class="flex flex-wrap items-center justify-between gap-4 px-12 mt-6 mb-4">
+        <div class="flex flex-wrap items-center justify-between gap-4 px-6 lg:px-8 xl:px-12 mt-6 mb-4">
             <div class="flex items-center bg-white rounded-full shadow-md px-5 py-3 w-full max-w-xl border border-slate-100 focus-within:border-[#4151a6] focus-within:ring-2 focus-within:ring-[#4151a6]/20 transition-all duration-300">
                 <span class="material-icons text-slate-400 mr-2 text-lg">search</span>
                 <input
@@ -107,7 +107,7 @@
         </div>
 
         <!-- TABLE CARD -->
-        <div class="bg-white rounded-3xl shadow-lg mx-12 p-6 mb-8 overflow-x-auto max-w-full">
+        <div class="bg-white rounded-3xl shadow-lg mx-6 lg:mx-8 xl:mx-12 p-6 mb-8 overflow-x-auto max-w-full">
             @if($pesanans->isEmpty())
             <div class="flex flex-col items-center justify-center py-12">
                 <span class="material-icons text-gray-300 text-6xl mb-4">receipt_long</span>

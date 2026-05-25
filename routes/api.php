@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LaundryController;
+use App\Http\Controllers\Api\LayananApiController;
 
 // ─── Public routes ───
 Route::post('login', [AuthController::class, 'login']);
@@ -14,6 +15,7 @@ Route::post('login-mobile', [AuthController::class, 'loginMobile']);
 Route::post('complete-profile', [AuthController::class, 'completeProfile']);
 
 // ─── MOBILE API ROUTES (stateless, no auth middleware) ───
+Route::get('layanans', [LayananApiController::class, 'index']);
 Route::post('orders', [LaundryController::class, 'createOrder']);
 Route::get('orders/pelanggan', [LaundryController::class, 'getOrdersByPelanggan']);
 Route::get('tracking/{id}', [LaundryController::class, 'getTracking']);

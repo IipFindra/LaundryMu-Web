@@ -4,7 +4,7 @@
 <div class="bg-[#eaf4fb] font-sans min-h-screen flex">
 
     <!-- SIDEBAR -->
-    <aside class="fixed left-0 top-0 h-screen w-72 bg-gradient-to-b from-[#3a4ca3] via-[#4b63c3] to-[#4151a6] text-white flex flex-col justify-between shadow-xl z-20">
+    <aside class="fixed left-0 top-0 h-screen w-56 lg:w-64 xl:w-72 bg-gradient-to-b from-[#3a4ca3] via-[#4b63c3] to-[#4151a6] text-white flex flex-col justify-between shadow-xl z-20">
         <div>
             <!-- Logo & App Name -->
             <div class="flex flex-col items-center px-6 pt-8 pb-4">
@@ -57,9 +57,9 @@
     </aside>
 
     <!-- MAIN -->
-    <div class="flex-1 min-h-screen flex flex-col bg-[#eaf4fb] ml-72">
+    <div class="flex-1 min-h-screen flex flex-col bg-[#eaf4fb] ml-56 lg:ml-64 xl:ml-72">
         <!-- HEADER FIXED -->
-        <header class="fixed top-0 left-72 right-0 h-16 bg-white flex items-center justify-between px-12 z-30 border-b border-slate-100" style="min-width:0;">
+        <header class="fixed top-0 left-56 lg:left-64 xl:left-72 right-0 h-16 bg-white flex items-center justify-between px-6 lg:px-8 xl:px-12 z-30 border-b border-slate-100" style="min-width:0;">
             <div class="flex items-center gap-3 h-full">
                 <span class="text-2xl font-bold text-[#2d3e90]">Manajemen Pelanggan</span>
             </div>
@@ -68,7 +68,7 @@
         <div class="h-16"></div>
 
         <!-- CONTENT -->
-        <div class="px-12 mt-8 mb-4">
+        <div class="px-6 lg:px-8 xl:px-12 mt-8 mb-4">
             <!-- SEARCH & ACTIONS -->
             <div class="flex flex-wrap items-center justify-between gap-4 w-full mb-4">
                 <div class="flex items-center bg-white rounded-full shadow-md px-5 py-3 w-full max-w-xl border border-slate-100 focus-within:border-[#4151a6] focus-within:ring-2 focus-within:ring-[#4151a6]/20 transition-all duration-300">
@@ -102,7 +102,7 @@
         </div>
 
         <!-- TABLE CARD -->
-        <div class="bg-white rounded-3xl shadow-lg mx-12 p-6 mb-8 overflow-x-auto max-w-full">
+        <div class="bg-white rounded-3xl shadow-lg mx-6 lg:mx-8 xl:mx-12 p-6 mb-8 overflow-x-auto max-w-full">
             @if(count($pelanggans) > 0)
             <table class="w-full min-w-[800px] text-left">
                 <thead>
