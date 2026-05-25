@@ -143,7 +143,7 @@
         <!-- DETAIL PELANGGAN -->
         {{-- <div class="detail-item">
             <span class="label">ID Pesanan</span>
-            <span class="value">#{{ $pesanan->id }}</span>
+            <span class="value">{{ $pesanan->id }}</span>
         </div> --}}
         <div class="detail-item">
             <span class="label">Pelanggan</span>

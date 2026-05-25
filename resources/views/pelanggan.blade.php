@@ -108,6 +108,7 @@
                 <thead>
                     <tr class="text-[#2d3e90] font-bold text-lg border-b-2 border-gray-100">
                         <th class="py-3 px-2 w-16">Pilih</th>
+                        <th class="py-3 px-2">ID Pelanggan</th>
                         <th class="py-3 px-2">Nama</th>
                         <th class="py-3 px-2">No Telepon</th>
                         <th class="py-3 px-2">Alamat</th>
@@ -119,6 +120,9 @@
                     @foreach($pelanggans as $pelanggan)
                     <tr class="border-b hover:bg-gray-50 transition cursor-pointer" onclick="selectPelanggan('{{ $pelanggan->id_pelanggan }}', this)" data-pelanggan-id="{{ $pelanggan->id_pelanggan }}">
                         <td class="py-3 px-2" onclick="event.stopPropagation();"><input type="checkbox" class="w-4 h-4"></td>
+                        <td class="py-3 px-2">
+                            <span class="bg-[#4151a6]/10 text-[#4151a6] font-bold text-xs px-2 py-1 rounded-full">{{ $pelanggan->id_pelanggan }}</span>
+                        </td>
                         <td class="py-3 px-2 font-semibold">{{ $pelanggan->nama_lengkap }}</td>
                         <td class="py-3 px-2">{{ $pelanggan->no_telepon }}</td>
                         <td class="py-3 px-2">{{ $pelanggan->alamat }}</td>
@@ -214,12 +218,13 @@ function jalankanFilter() {
     let rows = document.querySelectorAll("tbody tr");
 
     rows.forEach(row => {
-        let nama     = row.children[1].innerText.toLowerCase();
-        let telepon  = row.children[2].innerText.toLowerCase();
-        let alamat   = row.children[3].innerText.toLowerCase();
-        let tanggal  = row.children[4].innerText.toLowerCase(); 
+        let id      = row.children[1]?.innerText.toLowerCase() ?? '';
+        let nama    = row.children[2]?.innerText.toLowerCase() ?? '';
+        let telepon = row.children[3]?.innerText.toLowerCase() ?? '';
+        let alamat  = row.children[4]?.innerText.toLowerCase() ?? '';
+        let tanggal = row.children[5]?.innerText.toLowerCase() ?? '';
 
-        let data = nama + " " + telepon + " " + alamat + " " + tanggal;
+        let data = id + " " + nama + " " + telepon + " " + alamat + " " + tanggal;
         let cocokSearch = data.includes(input);
         
         let cocokKategori = true; 

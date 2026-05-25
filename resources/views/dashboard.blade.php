@@ -184,7 +184,7 @@
                 </h2>
                 <div class="flex-1 overflow-y-auto max-h-[290px] pr-1 custom-scrollbar space-y-3">
                     @forelse($pesananTerbaru as $p)
-                        <div onclick="window.location.href='{{ route('edit.pesanan', $p->id) }}'" class="flex items-center justify-between p-3.5 rounded-2xl hover:bg-slate-50 border border-slate-50 transition-all duration-200 group cursor-pointer">
+                        <div onclick="window.location.href='{{ route('edit.pesanan', $p->id_pesanans) }}'" class="flex items-center justify-between p-3.5 rounded-2xl hover:bg-slate-50 border border-slate-50 transition-all duration-200 group cursor-pointer">
                             <div class="flex items-center gap-3 min-w-0">
                                 <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-[#4151a6] to-[#5b73e8] text-white flex items-center justify-center font-bold text-sm shadow-sm flex-shrink-0">
                                     {{ strtoupper(substr($p->nama_pelanggan, 0, 2)) }}

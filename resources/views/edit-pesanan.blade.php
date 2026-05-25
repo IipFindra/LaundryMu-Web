@@ -74,7 +74,10 @@
 
             <!-- INFO PESANAN TERPILIH -->
             <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
-                <h2 class="text-lg font-bold text-[#2d3e90] mb-6">Pilih Pesanan Yang Akan Diedit</h2>
+                <div class="flex items-center gap-3 mb-6">
+                    <h2 class="text-lg font-bold text-[#2d3e90]">Edit Status Pesanan</h2>
+                    <span class="bg-[#4151a6]/10 text-[#4151a6] font-bold text-sm px-3 py-1 rounded-full">{{ $pesanan->id_pesanans }}</span>
+                </div>
 
                 <div class="grid grid-cols-3 gap-6 mb-6">
                     <!-- Tanggal -->
@@ -128,10 +131,10 @@
             </div>
 
             <!-- FORM EDIT -->
-            <form action="{{ route('edit.pesanan.update', $pesanan->id) }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-2xl shadow-lg p-8">
+            <form action="{{ route('edit.pesanan.update', $pesanan->id_pesanans) }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-2xl shadow-lg p-8">
                 @csrf
 
-                <h2 class="text-lg font-bold text-[#2d3e90] mb-6">Edit Pesanan</h2>
+                <h2 class="text-lg font-bold text-[#2d3e90] mb-6">Edit Pesanan &amp; Status Tracking</h2>
 
                 <div class="grid grid-cols-2 gap-8">
 
@@ -183,13 +186,12 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-600 mb-2">Status</label>
                             <select name="status" class="w-full bg-white rounded-xl shadow px-4 py-3 outline-none border border-gray-200 focus:border-[#4151a6] focus:ring-2 focus:ring-[#4151a6]/20 transition">
-                                <option value="Sedang dalam perjalanan ke rumah Anda" {{ $pesanan->status == 'Sedang dalam perjalanan ke rumah Anda' ? 'selected' : '' }}>Sedang dalam perjalanan ke rumah Anda</option>
-                                <option value="Menunggu konfirmasi Admin" {{ $pesanan->status == 'Menunggu konfirmasi Admin' ? 'selected' : '' }}>Menunggu konfirmasi Admin</option>
-                                <option value="Sedang di jemput kurir" {{ $pesanan->status == 'Sedang di jemput kurir' ? 'selected' : '' }}>Sedang di jemput kurir</option>
-                                <option value="Sedang di timbang" {{ $pesanan->status == 'Sedang di timbang' ? 'selected' : '' }}>Sedang di timbang</option>
-                                <option value="Sedang di cuci" {{ $pesanan->status == 'Sedang di cuci' ? 'selected' : '' }}>Sedang di cuci</option>
-                                <option value="Sedang di kemas" {{ $pesanan->status == 'Sedang di kemas' ? 'selected' : '' }}>Sedang di kemas</option>
-                                <option value="Selesai" {{ $pesanan->status == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                                <option value="Menunggu Konfirmasi" {{ $pesanan->status == 'Menunggu Konfirmasi' ? 'selected' : '' }}>⏳ Menunggu Konfirmasi</option>
+                                <option value="Dijemput"            {{ $pesanan->status == 'Dijemput'            ? 'selected' : '' }}>🚚 Dijemput</option>
+                                <option value="Dicuci"              {{ $pesanan->status == 'Dicuci'              ? 'selected' : '' }}>🫧 Dicuci</option>
+                                <option value="Dikeringkan"         {{ $pesanan->status == 'Dikeringkan'         ? 'selected' : '' }}>💨 Dikeringkan</option>
+                                <option value="Diantar"             {{ $pesanan->status == 'Diantar'             ? 'selected' : '' }}>🛵 Diantar</option>
+                                <option value="Selesai"             {{ $pesanan->status == 'Selesai'             ? 'selected' : '' }}>✅ Selesai</option>
                             </select>
                         </div>
 

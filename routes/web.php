@@ -78,6 +78,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/edit-pesanan/{id}', [PesananController::class, 'updatePesanan'])
         ->name('edit.pesanan.update');
 
+    // Update Status Tracking (khusus sinkron Flutter)
+    Route::post('/pesanan/{id}/update-status', [PesananController::class, 'updateStatus'])
+        ->name('pesanan.update.status');
+
     // Dashboard API Routes (Search, Notifications, Messages)
     Route::get('/api/search', [DashboardController::class, 'search'])->name('api.search');
     Route::post('/api/notifications/read', [DashboardController::class, 'markNotifRead'])->name('api.notif.read');

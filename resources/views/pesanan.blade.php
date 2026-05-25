@@ -67,37 +67,42 @@
         </header>
         <div class="h-16"></div>
 
+        {{-- SUCCESS FLASH MESSAGE --}}
+        @if(session('success'))
+        <div id="flashSuccess" class="mx-12 mt-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl px-5 py-3 flex items-center gap-2 shadow-sm">
+            <span class="material-icons text-green-600 text-lg">check_circle</span>
+            <span class="font-semibold text-sm">{{ session('success') }}</span>
+        </div>
+        <script>setTimeout(() => { const el = document.getElementById('flashSuccess'); if(el) el.remove(); }, 4000);</script>
+        @endif
+
         <!-- SEARCH & ACTIONS -->
-        <div class="flex flex-wrap items-center justify-between gap-4 px-12 mt-8 mb-4">
+        <div class="flex flex-wrap items-center justify-between gap-4 px-12 mt-6 mb-4">
             <div class="flex items-center bg-white rounded-full shadow-md px-5 py-3 w-full max-w-xl border border-slate-100 focus-within:border-[#4151a6] focus-within:ring-2 focus-within:ring-[#4151a6]/20 transition-all duration-300">
                 <span class="material-icons text-slate-400 mr-2 text-lg">search</span>
                 <input
                     type="text"
                     id="searchPesanan"
-                    oninput="searchPesanan()"
-                    placeholder="Cari Pesanan"
+                    oninput="jalankanFilter()"
+                    placeholder="Cari pesanan, nama, status..."
                     class="bg-transparent outline-none w-full text-slate-700 text-sm placeholder-slate-400"
                 >
             </div>
 
             <div class="flex items-center gap-3">
+                {{-- Tombol Edit Status (aktif setelah pilih baris) --}}
+                <button id="editStatusBtn" onclick="openStatusModal()" class="flex items-center gap-2 bg-slate-300 text-slate-500 font-bold px-5 py-3 rounded-2xl shadow cursor-not-allowed transition duration-200" disabled>
+                    <span class="material-icons text-base">track_changes</span>
+                    Edit Status
+                </button>
+
+                {{-- Tombol Edit Pesanan Lengkap --}}
                 <button id="editButton" onclick="goToEditPesanan()" class="flex items-center gap-2 bg-slate-300 text-slate-500 font-bold px-5 py-3 rounded-2xl shadow cursor-not-allowed transition duration-200" disabled>
                     <span class="material-icons text-base">edit</span>
                     Edit Pesanan
                 </button>
 
-                <div class="relative" id="kategoriContainer">
-                    <button onclick="toggleKategori(event)" class="flex items-center gap-2 bg-[#4151a6] text-white font-bold px-5 py-3 rounded-2xl shadow hover:bg-[#2d3e90] transition hover:scale-[1.02] active:scale-95 duration-200">
-                        <span id="kategoriText">Pilih Kategori</span>
-                        <span id="arrowKategori" class="material-icons text-base transition-transform duration-300">chevron_right</span>
-                    </button>
-                    <div id="dropdownKategori" class="absolute right-0 mt-2 w-64 bg-[#4151a6] text-white rounded-2xl shadow-xl overflow-hidden z-[100] max-h-0 opacity-0 scale-y-95 transition-all duration-300 origin-top">
-                        <button onclick="filterKategori('all','Pilih Kategori', event)" class="w-full text-left px-5 py-4 border-b border-white/20 hover:bg-[#2d3e90] font-semibold transition">Pilih Kategori</button>
-                        <button onclick="filterKategori('Cuci Kering','Cuci Kering', event)" class="w-full text-left px-5 py-4 border-b border-white/20 hover:bg-[#2d3e90] font-semibold transition">Cuci Kering</button>
-                        <button onclick="filterKategori('Cuci Setrika','Cuci Setrika', event)" class="w-full text-left px-5 py-4 border-b border-white/20 hover:bg-[#2d3e90] font-semibold transition">Cuci Setrika</button>
-                        <button onclick="filterKategori('Cuci Express','Cuci Express', event)" class="w-full text-left px-5 py-4 hover:bg-[#2d3e90] font-semibold transition">Cuci Express</button>
-                    </div>
-                </div>
+
             </div>
         </div>
 
@@ -110,49 +115,51 @@
                 <p class="text-gray-400 text-center">Pesanan yang dibuat akan ditampilkan di sini.</p>
             </div>
             @else
-            <table class="w-full min-w-[1000px] text-left">
+            <table class="w-full min-w-[1100px] text-left" id="pesananTable">
                 <thead>
-                    <tr class="text-[#2d3e90] font-bold text-lg border-b-2 border-gray-100">
+                    <tr class="text-[#2d3e90] font-bold text-sm border-b-2 border-gray-100">
                         <th class="py-3 px-2">Pilih</th>
+                        <th class="py-3 px-2">ID Pesanan</th>
                         <th class="py-3 px-2">Tanggal</th>
                         <th class="py-3 px-2">Nama</th>
                         <th class="py-3 px-2">Pesanan</th>
                         <th class="py-3 px-2">Berat</th>
                         <th class="py-3 px-2">Harga</th>
                         <th class="py-3 px-2">Status</th>
-                        <th class="py-3 px-2">Cetak Struk</th>
+                        <th class="py-3 px-2">Alamat</th>
                     </tr>
                 </thead>
-                <tbody class="text-gray-700 text-base">
+                <tbody class="text-gray-700 text-sm" id="pesananTbody">
                     @foreach($pesanans as $pesanan)
-                    <tr class="border-b hover:bg-gray-50 cursor-pointer transition" onclick="selectPesanan({{ $pesanan->id }}, this)" data-pesanan-id="{{ $pesanan->id }}">
+                    <tr class="border-b hover:bg-gray-50 cursor-pointer transition"
+                        onclick="selectPesanan({{ $pesanan->id_pesanans }}, this)"
+                        data-pesanan-id="{{ $pesanan->id_pesanans }}"
+                        data-id="{{ $pesanan->id_pesanans }}">
                         <td class="py-3 px-2"><input type="checkbox" class="w-4 h-4"></td>
+                        <td class="py-3 px-2 font-bold text-[#4151a6]">{{ $pesanan->id_pesanans }}</td>
                         <td class="py-3 px-2">{{ $pesanan->tanggal->format('Y-m-d') }}</td>
                         <td class="py-3 px-2 font-semibold">{{ $pesanan->nama_pelanggan }}</td>
                         <td class="py-3 px-2">{{ $pesanan->kategori }}</td>
-                        <td class="py-3 px-2">{{ $pesanan->berat }}</td>
+                        <td class="py-3 px-2">{{ $pesanan->berat }} KG</td>
                         <td class="py-3 px-2 font-semibold">Rp {{ number_format($pesanan->harga, 0, ',', '.') }}</td>
                         <td class="py-3 px-2">
-                            @if($pesanan->status == 'Sedang dalam proses')
-                                <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $pesanan->status }}</span>
-                            @elseif($pesanan->status == 'Proses')
-                                <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $pesanan->status }}</span>
-                            @elseif($pesanan->status == 'Kurir dalam perjalanan')
-                                <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $pesanan->status }}</span>
-                            @else
-                                <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $pesanan->status }}</span>
-                            @endif
+                            @php
+                                $statusColor = match($pesanan->status) {
+                                    'Menunggu Konfirmasi'   => 'bg-amber-100 text-amber-700',
+                                    'Dijemput'              => 'bg-blue-100 text-blue-700',
+                                    'Dicuci'                => 'bg-cyan-100 text-cyan-700',
+                                    'Dikeringkan'           => 'bg-indigo-100 text-indigo-700',
+                                    'Diantar'               => 'bg-purple-100 text-purple-700',
+                                    'Selesai'               => 'bg-green-100 text-green-700',
+                                    default                 => 'bg-gray-100 text-gray-700',
+                                };
+                            @endphp
+                            <span class="{{ $statusColor }} px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
+                                {{ $pesanan->status }}
+                            </span>
                         </td>
-                        <td class="py-3 px-2 text-center">
-                            <div class="relative inline-block">
-                                <button onclick="toggleFormatDropdown({{ $pesanan->id }}, event)" class="bg-[#4151a6] hover:bg-[#2d3e90] text-white rounded-lg p-2">
-                                    <span class="material-icons text-lg">print</span>
-                                </button>
-                                <div id="formatDropdown{{ $pesanan->id }}" class="absolute right-0 mt-1 w-24 bg-white border border-gray-200 rounded shadow-lg z-[100] hidden">
-                                    <a href="{{ route('pesanan.struk', [$pesanan->id, 'pdf']) }}" target="_blank" onclick="closeFormatDropdown({{ $pesanan->id }})" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">PDF</a>
-                                    <a href="{{ route('pesanan.struk', [$pesanan->id, 'png']) }}" target="_blank" onclick="closeFormatDropdown({{ $pesanan->id }})" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">PNG</a>
-                                </div>
-                            </div>
+                        <td class="py-3 px-2 text-sm text-gray-600">
+                            {{ $pesanan->pelanggan?->alamat ?: 'Alamat belum tersedia' }}
                         </td>
                     </tr>
                     @endforeach
@@ -163,140 +170,197 @@
     </div>
 </div>
 
+{{-- ═══════════════════════════════════════════════════════════════
+     MODAL: Edit Status Tracking
+═══════════════════════════════════════════════════════════════ --}}
+<div id="statusModal" class="fixed inset-0 z-[200] hidden items-center justify-center">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeStatusModal()"></div>
+    <div class="relative bg-white rounded-3xl w-full max-w-md shadow-2xl p-8 mx-4 z-10">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="h-10 w-10 rounded-xl bg-[#4151a6]/10 flex items-center justify-center">
+                <span class="material-icons text-[#4151a6]">track_changes</span>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-[#2d3e90]">Edit Status Pesanan</h3>
+                <p class="text-xs text-slate-500" id="modalPesananInfo">Pilih status baru</p>
+            </div>
+        </div>
+
+        <form id="statusForm" method="POST">
+            @csrf
+            <div class="space-y-2 mb-6">
+                @php
+                $statusList = [
+                    ['val' => 'Menunggu Konfirmasi', 'icon' => 'hourglass_empty', 'color' => 'amber'],
+                    ['val' => 'Dijemput',            'icon' => 'local_shipping',   'color' => 'blue'],
+                    ['val' => 'Dicuci',              'icon' => 'local_laundry_service', 'color' => 'cyan'],
+                    ['val' => 'Dikeringkan',         'icon' => 'air',              'color' => 'indigo'],
+                    ['val' => 'Diantar',             'icon' => 'delivery_dining',  'color' => 'purple'],
+                    ['val' => 'Selesai',             'icon' => 'check_circle',     'color' => 'green'],
+                ];
+                @endphp
+
+                @foreach($statusList as $s)
+                <label class="flex items-center gap-3 p-3 rounded-xl border-2 border-transparent hover:border-[#4151a6]/20 hover:bg-[#4151a6]/5 cursor-pointer transition-all duration-150 has-[:checked]:border-[#4151a6] has-[:checked]:bg-[#4151a6]/10">
+                    <input type="radio" name="status" value="{{ $s['val'] }}" class="sr-only">
+                    <div class="h-8 w-8 rounded-lg bg-{{ $s['color'] }}-100 flex items-center justify-center flex-shrink-0">
+                        <span class="material-icons text-{{ $s['color'] }}-600 text-base">{{ $s['icon'] }}</span>
+                    </div>
+                    <span class="font-semibold text-slate-700 text-sm">{{ $s['val'] }}</span>
+                    <span class="ml-auto material-icons text-[#4151a6] hidden check-icon text-base">check_circle</span>
+                </label>
+                @endforeach
+            </div>
+
+            <div class="flex gap-3">
+                <button type="button" onclick="closeStatusModal()" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 transition text-sm">
+                    Batal
+                </button>
+                <button type="submit" class="flex-1 bg-[#4151a6] hover:bg-[#2d3e90] text-white font-bold py-3 rounded-xl shadow transition text-sm">
+                    Simpan Status
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
-let kategoriOpen = false;
-let kategoriAktif = "all";
+let idPesananOpen = false;
 let selectedPesananId = null;
 
-/* SELECT PESANAN */
+/* ══════════════════════════════════════════
+   SELECT PESANAN
+══════════════════════════════════════════ */
 function selectPesanan(pesananId, rowElement) {
-    // Hapus class active dari row yang sebelumnya
     const previousRow = document.querySelector("tbody tr.bg-blue-100");
-    if (previousRow) {
-        previousRow.classList.remove("bg-blue-100");
-    }
+    if (previousRow) previousRow.classList.remove("bg-blue-100");
 
-    // Tambahkan class active ke row yang dipilih
     rowElement.classList.add("bg-blue-100");
-
-    // Simpan ID pesanan yang dipilih
     selectedPesananId = pesananId;
 
-    // Enable edit button
+    // Enable tombol Edit Status
+    const editStatusBtn = document.getElementById("editStatusBtn");
+    editStatusBtn.disabled = false;
+    editStatusBtn.classList.remove("bg-slate-300", "text-slate-500", "cursor-not-allowed");
+    editStatusBtn.classList.add("bg-emerald-600", "text-white", "hover:bg-emerald-700", "cursor-pointer");
+
+    // Enable tombol Edit Pesanan
     const editButton = document.getElementById("editButton");
     editButton.disabled = false;
-    editButton.classList.remove("bg-gray-300", "text-gray-500", "cursor-not-allowed");
-    editButton.classList.add("bg-[#4151a6]", "text-white", "hover:bg-[#2d3e90]");
+    editButton.classList.remove("bg-slate-300", "text-slate-500", "cursor-not-allowed");
+    editButton.classList.add("bg-[#4151a6]", "text-white", "hover:bg-[#2d3e90]", "cursor-pointer");
 }
 
-/* GO TO EDIT PESANAN */
+/* ══════════════════════════════════════════
+   GO TO EDIT PESANAN (full edit)
+══════════════════════════════════════════ */
 function goToEditPesanan() {
     if (selectedPesananId) {
         window.location.href = "{{ route('edit.pesanan', ['id' => ':id']) }}".replace(':id', selectedPesananId);
     }
 }
 
-/* DROPDOWN */
-function toggleKategori(event) {
+/* ══════════════════════════════════════════
+   MODAL EDIT STATUS
+══════════════════════════════════════════ */
+function openStatusModal() {
+    if (!selectedPesananId) return;
+
+    // Set action form
+    const actionUrl = "{{ route('pesanan.update.status', ['id' => ':id']) }}".replace(':id', selectedPesananId);
+    document.getElementById('statusForm').action = actionUrl;
+    document.getElementById('modalPesananInfo').innerText = 'Pesanan ' + selectedPesananId;
+
+    // Reset radio pilihan
+    document.querySelectorAll('#statusForm input[name="status"]').forEach(r => r.checked = false);
+
+    const modal = document.getElementById('statusModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeStatusModal() {
+    const modal = document.getElementById('statusModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+// Highlight radio yang dipilih
+document.addEventListener('change', function(e) {
+    if (e.target.name === 'status') {
+        document.querySelectorAll('#statusForm label').forEach(label => {
+            label.querySelector('.check-icon')?.classList.add('hidden');
+        });
+        const checkedLabel = e.target.closest('label');
+        if (checkedLabel) checkedLabel.querySelector('.check-icon')?.classList.remove('hidden');
+    }
+});
+
+/* ══════════════════════════════════════════
+   DROPDOWN: ID PESANAN (Sort)
+══════════════════════════════════════════ */
+function toggleIdPesanan(event) {
     event.preventDefault();
     event.stopPropagation();
-    console.log("Toggle kategori triggered");
-    const dropdown = document.getElementById("dropdownKategori");
-    const arrow = document.getElementById("arrowKategori");
-
-    kategoriOpen = !kategoriOpen;
-
-    if (kategoriOpen) {
+    const dropdown = document.getElementById("dropdownIdPesanan");
+    const arrow = document.getElementById("arrowIdPesanan");
+    idPesananOpen = !idPesananOpen;
+    if (idPesananOpen) {
         dropdown.classList.remove("max-h-0", "opacity-0", "scale-y-95");
-        dropdown.classList.add("max-h-96", "opacity-100", "scale-y-100");
+        dropdown.classList.add("max-h-40", "opacity-100", "scale-y-100");
         arrow.classList.add("rotate-90");
     } else {
         dropdown.classList.add("max-h-0", "opacity-0", "scale-y-95");
-        dropdown.classList.remove("max-h-96", "opacity-100", "scale-y-100");
+        dropdown.classList.remove("max-h-40", "opacity-100", "scale-y-100");
         arrow.classList.remove("rotate-90");
     }
 }
 
-/* PILIH KATEGORI */
-function filterKategori(kategori, text, event) {
+function sortById(direction, event) {
     event.preventDefault();
     event.stopPropagation();
 
-    kategoriAktif = kategori;
+    const tbody = document.getElementById('pesananTbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
 
-    document.getElementById("kategoriText").innerText = text;
+    rows.sort((a, b) => {
+        const idA = parseInt(a.getAttribute('data-id') || 0);
+        const idB = parseInt(b.getAttribute('data-id') || 0);
+        return direction === 'asc' ? idA - idB : idB - idA;
+    });
 
-    jalankanFilter();
+    rows.forEach(row => tbody.appendChild(row));
 
-    toggleKategori(event);
+    document.getElementById('idPesananText').innerText =
+        direction === 'asc' ? 'ID ↑ Terkecil' : 'ID ↓ Terbesar';
+
+    toggleIdPesanan(event);
 }
 
-/* SEARCH */
-function searchPesanan() {
-    console.log("Search triggered");
-    jalankanFilter();
-}
-
-/* FILTER UTAMA */
+/* ══════════════════════════════════════════
+   SEARCH & FILTER
+══════════════════════════════════════════ */
 function jalankanFilter() {
-
     let input = document.getElementById("searchPesanan").value.toLowerCase();
-
     let rows = document.querySelectorAll("tbody tr");
 
     rows.forEach(row => {
+        let id      = row.children[1]?.innerText.toLowerCase() ?? '';
+        let tanggal = row.children[2]?.innerText.toLowerCase() ?? '';
+        let nama    = row.children[3]?.innerText.toLowerCase() ?? '';
+        let kat     = row.children[4]?.innerText.toLowerCase() ?? '';
+        let berat   = row.children[5]?.innerText.toLowerCase() ?? '';
+        let harga   = row.children[6]?.innerText.toLowerCase().replace('rp ', '').replace(/\./g, '') ?? '';
+        let status  = row.children[7]?.innerText.toLowerCase() ?? '';
+        let alamat  = row.children[8]?.innerText.toLowerCase() ?? '';
 
-        let tanggal  = row.children[1].innerText.toLowerCase();
-        let nama     = row.children[2].innerText.toLowerCase();
-        let kategori = row.children[3].innerText.toLowerCase();
-        let berat    = row.children[4].innerText.toLowerCase();
-        let harga    = row.children[5].innerText.toLowerCase().replace('rp ', '').replace(/\./g, '');
-        let status   = row.children[6].innerText.toLowerCase();
+        let data = id + " " + tanggal + " " + nama + " " + kat + " " + berat + " " + harga + " " + status + " " + alamat;
 
-        let data = tanggal + " " + nama + " " + kategori + " " + berat + " " + harga + " " + status;
-
-        let cocokSearch = data.includes(input);
-
-        let cocokKategori =
-            kategoriAktif === "all" ||
-            kategori === kategoriAktif.toLowerCase();
-
-        if (cocokSearch && cocokKategori) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
-
+        row.style.display = data.includes(input) ? "" : "none";
     });
 }
 
-/* TOGGLE FORMAT DROPDOWN */
-function toggleFormatDropdown(id, event) {
-    event.preventDefault();
-    event.stopPropagation();
-    const dropdown = document.getElementById("formatDropdown" + id);
-    dropdown.classList.toggle("hidden");
-}
 
-/* CLOSE FORMAT DROPDOWN */
-function closeFormatDropdown(id) {
-    const dropdown = document.getElementById("formatDropdown" + id);
-    if (dropdown) {
-        dropdown.classList.add("hidden");
-    }
-}
-
-/* CLOSE DROPDOWN WHEN CLICK OUTSIDE */
-/*
-document.addEventListener('click', function(event) {
-    const dropdowns = document.querySelectorAll('[id^="formatDropdown"]');
-    dropdowns.forEach(dropdown => {
-        if (!dropdown.contains(event.target) && !event.target.closest('button[onclick*="toggleFormatDropdown"]')) {
-            dropdown.classList.add('hidden');
-        }
-    });
-});
-*/
 </script>
 
 @endsection
