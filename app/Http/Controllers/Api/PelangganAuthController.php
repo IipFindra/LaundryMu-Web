@@ -36,8 +36,8 @@ class PelangganAuthController extends Controller
             }
         }
 
-        // Generate Sanctum token
-        $token = $pelanggan->createToken('mobile-token')->plainTextToken;
+        // Token sederhana tanpa Sanctum (flow OTP Firebase)
+        $token = 'mobile_' . $pelanggan->id_pelanggan . '_' . md5($pelanggan->no_telepon . now());
 
         return response()->json([
             'success' => true,
