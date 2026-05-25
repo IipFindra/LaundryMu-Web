@@ -14,18 +14,17 @@ return Application::configure(basePath: dirname(__DIR__))
     )
 
     ->withMiddleware(function (Middleware $middleware) {
-
-        // TRUST PROXIES
+        // ✅ 1. Trust semua proxy (biar Laravel percaya HTTPS dari ngrok)
         $middleware->trustProxies(at: '*')
             ->trustHosts(at: ['*']);
 
-        // CORS
+        // ✅ 2. Aktifkan CORS untuk API & Browser
         $middleware->append(HandleCors::class);
 
+        // ✅ 3. Stateful API untuk Sanctum & Cookie Session
+        $middleware->statefulApi();
     })
 
     ->withExceptions(function (Exceptions $exceptions) {
-
-    })
-
-    ->create();
+        // Biarkan Laravel handle error default
+    })->create();

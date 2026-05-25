@@ -84,5 +84,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/api/messages/read', [DashboardController::class, 'markMessageRead'])->name('api.message.read');
     Route::get('/api/notifications', [DashboardController::class, 'getNotifications'])->name('api.notifications');
     Route::get('/api/messages', [DashboardController::class, 'getMessages'])->name('api.messages');
+    Route::get('/api/chat/{customerName}', [DashboardController::class, 'getChatHistory'])->name('api.chat.history');
+    Route::post('/api/chat/send', [DashboardController::class, 'sendChatMessage'])->name('api.chat.send');
 
 });
