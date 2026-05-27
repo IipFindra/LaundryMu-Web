@@ -150,54 +150,61 @@
             @if(count($layanans) > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 mb-8">
                 @foreach($layanans as $layanan)
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between h-full hover:shadow-lg transition">
+                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 flex flex-col justify-between h-full hover:shadow-xl transition duration-300 overflow-hidden group">
                     <div>
-                        <!-- Header Card -->
-                        <div class="flex gap-4 mb-5 items-center">
-                            <div class="bg-[#eaf4fb] text-[#2d3e90] rounded-full h-16 w-16 flex items-center justify-center shrink-0 border-2 border-blue-100">
-                                <span class="material-icons text-3xl">{{ $layanan->ikon ?? 'local_laundry_service' }}</span>
-                            </div>
-                            <div class="flex flex-col items-start gap-1">
-                                <h3 class="font-bold text-2xl text-black leading-tight">{{ $layanan->nama }}</h3>
-                                <span class="bg-[#eaf4fb] text-[#2d3e90] text-sm font-bold px-4 py-1 rounded-full mt-1">{{ $layanan->tipe }}</span>
+                        <!-- Header Image -->
+                        @php
+                            $imgSrc = 'images/cuci_kering.png';
+                            if ($layanan->ikon === 'iron') $imgSrc = 'images/setrika_saja.jpg';
+                            elseif ($layanan->ikon === 'bolt') $imgSrc = 'images/cuci_express.png';
+                            elseif ($layanan->ikon === 'checkroom') $imgSrc = 'images/cuci_setrika.png';
+                            elseif ($layanan->ikon === 'workspace_premium') $imgSrc = 'images/cuci_premium.png';
+                        @endphp
+                        <div class="w-full h-40 sm:h-44 bg-gray-100 relative overflow-hidden">
+                            <img src="{{ asset($imgSrc) }}" alt="{{ $layanan->nama }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 ease-out" onerror="this.src='{{ asset('images/laundry1.png') }}'">
+                            
+                            <!-- Badge Status Overlay -->
+                            <div class="absolute top-4 right-4 text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full shadow-sm {{ $layanan->status == 'Aktif' ? 'bg-[#1b9a59] text-white' : 'bg-red-500 text-white' }}">
+                                {{ $layanan->status }}
                             </div>
                         </div>
 
-                        <!-- Info Details -->
-                        <div class="flex items-center justify-between mb-4 text-black">
-                            <div class="flex items-center gap-2">
-                                <span class="material-icons text-[26px]">schedule</span>
-                                <span class="font-semibold text-lg">{{ $layanan->waktu }}</span>
+                        <!-- Card Body -->
+                        <div class="p-6 pb-2 flex flex-col items-start gap-1">
+                            <h3 class="font-extrabold text-2xl text-black leading-tight group-hover:text-[#4151a6] transition-colors duration-300">{{ $layanan->nama }}</h3>
+                            <p class="text-[13px] text-gray-400 leading-snug mt-1 mb-4 line-clamp-2">
+                                {{ $layanan->deskripsi }}
+                            </p>
+                            
+                            <div class="flex items-center gap-4 w-full mt-1 mb-2">
+                                @php
+                                    $waktuArray = explode(' ', $layanan->waktu);
+                                @endphp
+                                <div class="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-2xl border border-slate-100 shadow-sm">
+                                    <span class="material-icons text-[#4151a6] text-[20px]">schedule</span>
+                                    <div class="flex flex-col leading-none">
+                                        <span class="text-[13px] font-bold text-gray-800">{{ $waktuArray[0] ?? '' }}</span>
+                                        <span class="text-[11px] font-semibold text-gray-500">{{ $waktuArray[1] ?? '' }}</span>
+                                    </div>
+                                </div>
+                                <div class="text-xl font-extrabold text-[#4151a6] tracking-tight">
+                                    Rp{{ number_format($layanan->harga, 0, ',', '.') }}<span class="text-[11px] font-bold text-gray-400">/{{ strtoupper($layanan->tipe == 'Per Kg' ? 'KG' : 'Satuan') }}</span>
+                                </div>
                             </div>
-                            <div class="text-lg font-bold">Rp{{ number_format($layanan->harga, 0, ',', '.') }}/{{ $layanan->tipe == 'Per Kg' ? 'Kg' : 'Satuan' }}</div>
                         </div>
-
-                        <!-- Description -->
-                        <p class="text-base text-gray-800 mb-6 leading-relaxed">
-                            {{ $layanan->deskripsi }}
-                        </p>
                     </div>
 
-                    <!-- Footer Card -->
-                    <div class="flex items-center justify-between mt-auto pt-2">
-                        <div class="flex items-center gap-2">
-                            @if($layanan->status == 'Aktif')
-                                <div class="w-3.5 h-3.5 rounded-full bg-[#1b9a59]"></div>
-                                <span class="text-base font-bold text-[#1b9a59]">{{ $layanan->status }}</span>
-                            @else
-                                <div class="w-3.5 h-3.5 rounded-full bg-red-500"></div>
-                                <span class="text-base font-bold text-red-600">{{ $layanan->status }}</span>
-                            @endif
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <button onclick="openEditModal({{ $layanan->id }}, '{{ addslashes($layanan->nama) }}', '{{ $layanan->tipe }}', '{{ $layanan->waktu }}', {{ $layanan->harga }}, '{{ $layanan->status }}', '{{ addslashes($layanan->deskripsi) }}', '{{ $layanan->ikon }}')" class="border-[1.5px] border-blue-300 text-blue-500 hover:bg-blue-50 rounded-xl p-2 transition flex items-center justify-center">
-                                <span class="material-icons text-xl">edit</span>
+                    <!-- Footer Actions (Edit/Delete) -->
+                    <div class="px-6 pb-6 pt-4 flex items-center justify-between mt-auto">
+                        <div class="flex items-center gap-3 w-full">
+                            <button onclick="openEditModal({{ $layanan->id }}, '{{ addslashes($layanan->nama) }}', '{{ $layanan->tipe }}', '{{ $layanan->waktu }}', {{ $layanan->harga }}, '{{ $layanan->status }}', '{{ addslashes($layanan->deskripsi) }}', '{{ $layanan->ikon }}')" class="flex-1 bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-bold rounded-xl py-2 transition flex items-center justify-center gap-2 shadow-sm text-sm">
+                                <span class="material-icons text-[18px]">edit</span> Edit
                             </button>
-                            <form action="{{ route('layanan.destroy', $layanan->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus layanan ini?');">
+                            <form action="{{ route('layanan.destroy', $layanan->id) }}" method="POST" class="flex-1" onsubmit="return confirm('Apakah Anda yakin ingin menghapus layanan ini?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="border-[1.5px] border-red-300 text-red-500 hover:bg-red-50 rounded-xl p-2 transition flex items-center justify-center">
-                                    <span class="material-icons text-xl">delete_outline</span>
+                                <button type="submit" class="w-full bg-white border border-red-200 text-red-500 hover:bg-red-50 font-bold rounded-xl py-2 transition flex items-center justify-center gap-2 shadow-sm text-sm">
+                                    <span class="material-icons text-[18px]">delete_outline</span> Hapus
                                 </button>
                             </form>
                         </div>
@@ -246,8 +253,15 @@
                 <div class="divide-y divide-gray-100">
                     @foreach($aktivitas as $item)
                     <div class="flex items-center gap-4 py-3 {{ $loop->first ? '' : '' }}">
-                        <div class="{{ $item->warna_ikon ?? 'bg-blue-100 text-blue-500' }} rounded-full h-10 w-10 flex items-center justify-center shrink-0">
-                            <span class="material-icons text-lg">{{ $item->ikon ?? 'local_laundry_service' }}</span>
+                        @php
+                            $imgSrcAkt = 'images/cuci_kering.png';
+                            if ($item->ikon === 'iron') $imgSrcAkt = 'images/setrika_saja.jpg';
+                            elseif ($item->ikon === 'bolt') $imgSrcAkt = 'images/cuci_express.png';
+                            elseif ($item->ikon === 'checkroom') $imgSrcAkt = 'images/cuci_setrika.png';
+                            elseif ($item->ikon === 'workspace_premium') $imgSrcAkt = 'images/cuci_premium.png';
+                        @endphp
+                        <div class="rounded-full h-10 w-10 flex items-center justify-center shrink-0 overflow-hidden border border-blue-100 shadow-sm bg-[#eaf4fb]">
+                            <img src="{{ asset($imgSrcAkt) }}" alt="{{ $item->nama }}" class="w-full h-full object-cover" onerror="this.src='{{ asset('images/laundry1.png') }}'">
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="text-sm font-bold text-gray-800 truncate">{{ $item->nama }}</div>
@@ -321,11 +335,11 @@
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Kategori Ikon</label>
                 <select name="kategori_ikon" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4151a6] bg-white">
-                    <option value="Standar">Cuci Kering / Standar (Ikon Mesin Cuci)</option>
-                    <option value="Cuci + Setrika">Cuci + Setrika (Ikon Baju)</option>
-                    <option value="Cuci Express">Cuci Express (Ikon Petir)</option>
-                    <option value="Premium">Premium (Ikon Bintang)</option>
-                    <option value="Setrika Saja">Setrika Saja (Ikon Setrika)</option>
+                    <option value="Standar">Cuci Kering / Standar (Foto Cuci Kering)</option>
+                    <option value="Cuci + Setrika">Cuci + Setrika (Foto Cuci + Setrika)</option>
+                    <option value="Cuci Express">Cuci Express (Foto Cuci Express)</option>
+                    <option value="Premium">Premium (Foto Cuci Premium)</option>
+                    <option value="Setrika Saja">Setrika Saja (Foto Setrika Saja)</option>
                 </select>
             </div>
 
@@ -388,11 +402,11 @@
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Kategori Ikon</label>
                 <select id="edit_kategori_ikon" name="kategori_ikon" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4151a6] bg-white">
-                    <option value="Standar">Cuci Kering / Standar (Ikon Mesin Cuci)</option>
-                    <option value="Cuci + Setrika">Cuci + Setrika (Ikon Baju)</option>
-                    <option value="Cuci Express">Cuci Express (Ikon Petir)</option>
-                    <option value="Premium">Premium (Ikon Bintang)</option>
-                    <option value="Setrika Saja">Setrika Saja (Ikon Setrika)</option>
+                    <option value="Standar">Cuci Kering / Standar (Foto Cuci Kering)</option>
+                    <option value="Cuci + Setrika">Cuci + Setrika (Foto Cuci + Setrika)</option>
+                    <option value="Cuci Express">Cuci Express (Foto Cuci Express)</option>
+                    <option value="Premium">Premium (Foto Cuci Premium)</option>
+                    <option value="Setrika Saja">Setrika Saja (Foto Setrika Saja)</option>
                 </select>
             </div>
 

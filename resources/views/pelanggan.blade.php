@@ -77,7 +77,7 @@
                         type="text"
                         id="searchPelanggan"
                         oninput="searchPelanggan()"
-                        placeholder="Cari Pelanggan"
+                        placeholder="Cari Pelanggan..."
                         class="bg-transparent outline-none w-full text-slate-700 text-sm placeholder-slate-400"
                     >
                 </div>
@@ -86,17 +86,6 @@
                         <span class="material-icons text-base">edit</span>
                         Edit
                     </button>
-                    <div class="relative" id="kategoriContainer">
-                        <button onclick="toggleKategori(event)" class="flex items-center gap-2 bg-[#4151a6] text-white font-bold px-5 py-3 rounded-2xl shadow hover:bg-[#2d3e90] transition hover:scale-[1.02] active:scale-95 duration-200">
-                            <span id="kategoriText">Pilih Kategori</span>
-                            <span id="arrowKategori" class="material-icons text-base transition-transform duration-300">chevron_right</span>
-                        </button>
-                        <div id="dropdownKategori" class="absolute right-0 mt-2 w-64 bg-[#4151a6] text-white rounded-2xl shadow-xl overflow-hidden z-[100] max-h-0 opacity-0 scale-y-95 transition-all duration-300 origin-top">
-                            <button onclick="filterKategori('all','Pilih Kategori', event)" class="w-full text-left px-5 py-4 border-b border-white/20 hover:bg-[#2d3e90] font-semibold transition">Pilih Kategori</button>
-                            <button onclick="filterKategori('Aktif','Aktif', event)" class="w-full text-left px-5 py-4 border-b border-white/20 hover:bg-[#2d3e90] font-semibold transition">Aktif</button>
-                            <button onclick="filterKategori('Nonaktif','Nonaktif', event)" class="w-full text-left px-5 py-4 hover:bg-[#2d3e90] font-semibold transition">Nonaktif</button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -148,8 +137,6 @@
 </div>
 
 <script>
-let kategoriOpen = false;
-let kategoriAktif = "all";
 let selectedPelangganId = null;
 
 /* SELECT PELANGGAN */
@@ -177,43 +164,8 @@ function goToEditPelanggan() {
     }
 }
 
-/* DROPDOWN */
-function toggleKategori(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    const dropdown = document.getElementById("dropdownKategori");
-    const arrow = document.getElementById("arrowKategori");
-
-    kategoriOpen = !kategoriOpen;
-
-    if (kategoriOpen) {
-        dropdown.classList.remove("max-h-0", "opacity-0", "scale-y-95");
-        dropdown.classList.add("max-h-96", "opacity-100", "scale-y-100");
-        arrow.classList.add("rotate-90");
-    } else {
-        dropdown.classList.add("max-h-0", "opacity-0", "scale-y-95");
-        dropdown.classList.remove("max-h-96", "opacity-100", "scale-y-100");
-        arrow.classList.remove("rotate-90");
-    }
-}
-
-/* PILIH KATEGORI */
-function filterKategori(kategori, text, event) {
-    event.preventDefault();
-    event.stopPropagation();
-    kategoriAktif = kategori;
-    document.getElementById("kategoriText").innerText = text;
-    jalankanFilter();
-    toggleKategori(event);
-}
-
 /* SEARCH */
 function searchPelanggan() {
-    jalankanFilter();
-}
-
-/* FILTER UTAMA */
-function jalankanFilter() {
     let input = document.getElementById("searchPelanggan").value.toLowerCase();
     let rows = document.querySelectorAll("tbody tr");
 
@@ -225,13 +177,8 @@ function jalankanFilter() {
         let tanggal = row.children[5]?.innerText.toLowerCase() ?? '';
 
         let data = id + " " + nama + " " + telepon + " " + alamat + " " + tanggal;
-        let cocokSearch = data.includes(input);
         
-        let cocokKategori = true; 
-        // Logic for kategori if status is uncommented:
-        // let cocokKategori = kategoriAktif === "all" || status === kategoriAktif.toLowerCase();
-
-        if (cocokSearch && cocokKategori) {
+        if (data.includes(input)) {
             row.style.display = "";
         } else {
             row.style.display = "none";
@@ -285,6 +232,9 @@ function jalankanFilter() {
 <script>
 let chatPollInterval = null;
 let chatCustomerName = null;
+let currentChatSession = 0; // To track active session and prevent fetch race conditions
+let lastFetchedChatData = ""; // To prevent unnecessary DOM re-renders
+let pendingMessages = 0; // Track in-flight messages to pause polling
 
 function openChatFromRow(pelangganId, namaLengkap, event) {
     event.preventDefault();
@@ -295,26 +245,29 @@ function openChatFromRow(pelangganId, namaLengkap, event) {
 function openChatModal(customerName) {
     chatCustomerName = customerName;
     if (!chatCustomerName) return;
+    
+    currentChatSession++; // Increment session to invalidate previous in-flight fetches
+    lastFetchedChatData = ""; // Reset cache
+    pendingMessages = 0;
 
     const modal = document.getElementById("chatModal");
     const avatar = document.getElementById("chatAvatar");
     const title = document.getElementById("chatTitle");
     const container = document.getElementById("chatMessages");
+    const input = document.getElementById("chatInput");
 
     title.innerText = "Chat dengan " + chatCustomerName;
     avatar.innerText = chatCustomerName.substring(0, 2).toUpperCase();
+    
+    // Clear input box
+    if(input) input.value = "";
+
+    // Empty container instantly (removes the "loading" perceived delay)
+    container.innerHTML = "";
 
     // Show modal
     modal.classList.remove("hidden");
     modal.classList.add("flex");
-
-    // Clear previous items
-    container.innerHTML = `
-        <div class="text-center text-slate-400 py-12 flex flex-col items-center justify-center gap-2 my-auto">
-            <span class="material-icons text-4xl animate-spin text-[#4151a6]">loop</span>
-            <span class="text-sm">Memuat pesan...</span>
-        </div>
-    `;
 
     // Load messages immediately
     loadChatMessages();
@@ -333,15 +286,32 @@ function closeChatModal() {
         clearInterval(chatPollInterval);
         chatPollInterval = null;
     }
+    chatCustomerName = null;
+    currentChatSession++; // Invalidate any pending fetches
+    lastFetchedChatData = "";
+    pendingMessages = 0;
 }
 
-function loadChatMessages() {
+function loadChatMessages(forceScroll = false) {
     if (!chatCustomerName) return;
+    if (pendingMessages > 0) return; // JANGAN timpa UI kalau sedang mengirim pesan!
+
     const url = `/api/chat/${encodeURIComponent(chatCustomerName)}`;
+    const session = currentChatSession;
 
     fetch(url)
         .then(res => res.json())
         .then(data => {
+            // Prevent race condition if user closed or switched chat while fetching
+            if (session !== currentChatSession) return;
+            // Double check pendingMessages in case user typed while fetching
+            if (pendingMessages > 0) return;
+
+            // Check if data actually changed to prevent flickering / re-rendering
+            const currentDataString = JSON.stringify(data);
+            if (currentDataString === lastFetchedChatData && !forceScroll) return;
+            lastFetchedChatData = currentDataString;
+
             const container = document.getElementById("chatMessages");
             
             if (data.length === 0) {
@@ -357,20 +327,34 @@ function loadChatMessages() {
             let html = "";
             data.forEach(msg => {
                 if (msg.is_admin) {
-                    // Admin bubble (right aligned, indigo)
+                    let tickColor = msg.dibaca ? 'text-blue-400' : 'text-slate-400';
+                    // Admin bubble (right aligned, indigo) with Edit/Delete options
                     html += `
-                        <div class="flex flex-col items-end self-end max-w-[85%]">
-                            <div class="bg-[#4151a6] text-white px-4 py-2.5 rounded-2xl rounded-tr-none text-sm shadow-sm leading-relaxed">
-                                ${escapeHtml(msg.message)}
+                        <div class="flex flex-col items-end self-end max-w-[85%] group relative mb-1">
+                            <div class="flex items-center gap-2">
+                                <div class="hidden group-hover:flex items-center gap-1 bg-white shadow-sm rounded-lg border border-slate-100 px-1 py-0.5 transition-all">
+                                    <button onclick="editChatMessage(${msg.id}, '${escapeHtml(msg.message).replace(/'/g, "\\'")}')" class="text-blue-500 hover:bg-blue-50 rounded p-1" title="Edit">
+                                        <span class="material-icons text-[14px]">edit</span>
+                                    </button>
+                                    <button onclick="deleteChatMessage(${msg.id})" class="text-red-500 hover:bg-red-50 rounded p-1" title="Hapus">
+                                        <span class="material-icons text-[14px]">delete</span>
+                                    </button>
+                                </div>
+                                <div class="bg-[#4151a6] text-white px-4 py-2.5 rounded-2xl rounded-tr-none text-sm shadow-sm leading-relaxed break-words" id="msg-text-${msg.id}">
+                                    ${escapeHtml(msg.message)}
+                                </div>
                             </div>
-                            <span class="text-[9px] text-slate-400 mt-1 mr-1">${msg.time}</span>
+                            <div class="flex items-center gap-1 mt-1 mr-1">
+                                <span class="text-[9px] text-slate-400">${msg.time}</span>
+                                <span class="material-icons text-[12px] ${tickColor}">done_all</span>
+                            </div>
                         </div>
                     `;
                 } else {
                     // Customer bubble (left aligned, white)
                     html += `
-                        <div class="flex flex-col items-start self-start max-w-[85%]">
-                            <div class="bg-white text-slate-800 border border-slate-100 px-4 py-2.5 rounded-2xl rounded-tl-none text-sm shadow-sm leading-relaxed">
+                        <div class="flex flex-col items-start self-start max-w-[85%] mb-1">
+                            <div class="bg-white text-slate-800 border border-slate-100 px-4 py-2.5 rounded-2xl rounded-tl-none text-sm shadow-sm leading-relaxed break-words">
                                 ${escapeHtml(msg.message)}
                             </div>
                             <span class="text-[9px] text-slate-400 mt-1 ml-1">${msg.time}</span>
@@ -379,7 +363,7 @@ function loadChatMessages() {
                 }
             });
 
-            const scrollDown = container.scrollTop + container.clientHeight >= container.scrollHeight - 60;
+            const scrollDown = forceScroll || (container.scrollTop + container.clientHeight >= container.scrollHeight - 60);
             container.innerHTML = html;
             
             if (scrollDown || container.getAttribute('data-first-load') !== 'false') {
@@ -397,9 +381,34 @@ function sendChatMessage(event) {
     const msgText = input.value.trim();
     if (!msgText) return;
 
+    // Bersihkan input
     input.value = "";
 
+    // TAMPILKAN PESAN SECARA INSTAN (OPTIMISTIC UI WHATSAPP STYLE)
+    const container = document.getElementById("chatMessages");
+    if (container.innerHTML.includes("Belum ada obrolan")) {
+        container.innerHTML = "";
+    }
+
+    const tempId = "temp-" + Date.now();
+    const newHtml = `
+        <div id="${tempId}" class="flex flex-col items-end self-end max-w-[85%] mb-1 opacity-70 transition-opacity duration-300">
+            <div class="bg-[#4151a6] text-white px-4 py-2.5 rounded-2xl rounded-tr-none text-sm shadow-sm leading-relaxed break-words">
+                ${escapeHtml(msgText)}
+            </div>
+            <div class="flex items-center gap-1 mt-1 mr-1">
+                <span class="text-[9px] text-slate-400">Mengirim...</span>
+                <span class="material-icons text-[10px] text-slate-400">schedule</span>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', newHtml);
+    container.scrollTop = container.scrollHeight;
+
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+    const session = currentChatSession;
+
+    pendingMessages++; // Kunci interval polling
 
     fetch('/api/chat/send', {
         method: 'POST',
@@ -411,10 +420,80 @@ function sendChatMessage(event) {
             customer_name: chatCustomerName,
             message: msgText
         })
-    })
-    .then(res => res.json())
-    .then(res => {
+    }).then(res => res.json()).then(res => {
+        pendingMessages--; // Buka kunci polling
+        if (session === currentChatSession && res.success) {
+            let tickColor = res.message.dibaca ? 'text-blue-400' : 'text-slate-400';
+            // Ubah bubble sementara menjadi bubble permanen
+            const tempBubble = document.getElementById(tempId);
+            if (tempBubble) {
+                tempBubble.classList.remove("opacity-70");
+                tempBubble.outerHTML = `
+                    <div class="flex flex-col items-end self-end max-w-[85%] group relative mb-1">
+                        <div class="flex items-center gap-2">
+                            <div class="hidden group-hover:flex items-center gap-1 bg-white shadow-sm rounded-lg border border-slate-100 px-1 py-0.5 transition-all">
+                                <button onclick="editChatMessage(${res.message.id}, '${escapeHtml(res.message.message).replace(/'/g, "\\'")}')" class="text-blue-500 hover:bg-blue-50 rounded p-1" title="Edit">
+                                    <span class="material-icons text-[14px]">edit</span>
+                                </button>
+                                <button onclick="deleteChatMessage(${res.message.id})" class="text-red-500 hover:bg-red-50 rounded p-1" title="Hapus">
+                                    <span class="material-icons text-[14px]">delete</span>
+                                </button>
+                            </div>
+                            <div class="bg-[#4151a6] text-white px-4 py-2.5 rounded-2xl rounded-tr-none text-sm shadow-sm leading-relaxed break-words" id="msg-text-${res.message.id}">
+                                ${escapeHtml(res.message.message)}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 mt-1 mr-1">
+                            <span class="text-[9px] text-slate-400">${res.message.time}</span>
+                            <span class="material-icons text-[12px] ${tickColor}">done_all</span>
+                        </div>
+                    </div>
+                `;
+            }
+            lastFetchedChatData = ""; // Agar polling berikutnya sinkronisasi
+        }
+    }).catch(err => {
+        pendingMessages--;
+        console.error('Gagal mengirim pesan:', err);
+    });
+}
+
+function deleteChatMessage(id) {
+    if (!confirm('Hapus pesan ini?')) return;
+    
+    pendingMessages++; // Kunci UI agar tidak kedap-kedip saat menghapus
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+    fetch(`/api/chat/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken
+        }
+    }).then(res => res.json()).then(res => {
+        pendingMessages--;
         if (res.success) {
+            lastFetchedChatData = "";
+            loadChatMessages();
+        }
+    });
+}
+
+function editChatMessage(id, oldText) {
+    const newText = prompt('Edit pesan:', oldText);
+    if (newText === null || newText.trim() === '' || newText === oldText) return;
+
+    pendingMessages++;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+    fetch(`/api/chat/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify({ message: newText.trim() })
+    }).then(res => res.json()).then(res => {
+        pendingMessages--;
+        if (res.success) {
+            lastFetchedChatData = "";
             loadChatMessages();
         }
     });

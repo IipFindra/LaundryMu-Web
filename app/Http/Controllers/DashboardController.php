@@ -151,6 +151,7 @@ class DashboardController extends Controller
                     'message' => $msg->pesan,
                     'time' => $msg->created_at->locale('id')->diffForHumans(),
                     'is_admin' => $msg->nama_pengirim === 'Admin',
+                    'dibaca' => (bool) $msg->dibaca,
                 ];
             });
 
@@ -173,23 +174,59 @@ class DashboardController extends Controller
             'message' => 'required|string',
         ]);
 
-        $msg = Message::create([
+        $msgAdmin = Message::create([
             'nama_pengirim' => 'Admin',
             'subjek' => $request->customer_name,
             'pesan' => $request->message,
             'tipe' => 'chat_pelanggan',
-            'dibaca' => true,
+            'dibaca' => false,
         ]);
 
         return response()->json([
             'success' => true,
             'message' => [
-                'id' => $msg->id,
+                'id' => $msgAdmin->id,
                 'sender' => 'Admin',
-                'message' => $msg->pesan,
+                'message' => $msgAdmin->pesan,
                 'time' => 'Baru saja',
                 'is_admin' => true,
+                'dibaca' => false,
             ]
         ]);
+    }
+
+    /**
+     * Edit a chat message
+     */
+    public function updateChatMessage(Request $request, $id)
+    {
+        $request->validate([
+            'message' => 'required|string',
+        ]);
+
+        $msg = Message::findOrFail($id);
+        
+        // Ensure only admin messages can be edited (optional, depending on business logic)
+        if ($msg->nama_pengirim === 'Admin') {
+            $msg->update(['pesan' => $request->message]);
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false], 403);
+    }
+
+    /**
+     * Delete a chat message
+     */
+    public function deleteChatMessage($id)
+    {
+        $msg = Message::findOrFail($id);
+        
+        if ($msg->nama_pengirim === 'Admin') {
+            $msg->delete();
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false], 403);
     }
 }

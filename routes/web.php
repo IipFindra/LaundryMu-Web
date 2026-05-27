@@ -89,5 +89,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/messages', [DashboardController::class, 'getMessages'])->name('api.messages');
     Route::get('/api/chat/{customerName}', [DashboardController::class, 'getChatHistory'])->name('api.chat.history');
     Route::post('/api/chat/send', [DashboardController::class, 'sendChatMessage'])->name('api.chat.send');
+    Route::put('/api/chat/{id}', [DashboardController::class, 'updateChatMessage'])->name('api.chat.update');
+    Route::delete('/api/chat/{id}', [DashboardController::class, 'deleteChatMessage'])->name('api.chat.delete');
 
 });
