@@ -71,104 +71,80 @@
                 <p class="text-lg text-gray-500 max-w-2xl mx-auto">Pilih layanan yang paling sesuai dengan kebutuhanmu. Kami menjamin kebersihan dan kerapian pakaianmu dengan kualitas terbaik.</p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-10">
-                <!-- Card 1 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+                @forelse($layanans as $layanan)
+                @php
+                    $imgSrc = 'images/cucikering.png'; // default
+                    // Set Best Seller badge for Cuci Kering (default)
+                    $badgeHtml = '<div class="absolute top-5 right-5 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-sm font-bold text-blue-700 shadow-sm flex items-center"><svg class="w-4 h-4 mr-1 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>Best Seller</div>';
+
+                    if ($layanan->ikon === 'iron') {
+                        $imgSrc = 'images/setrika_saja.jpg';
+                        $badgeHtml = ''; // No badge
+                    } elseif ($layanan->ikon === 'bolt') {
+                        $imgSrc = 'images/cuciexpress.png';
+                        $badgeHtml = '<div class="absolute top-5 right-5 bg-red-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md shadow-red-500/30 flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>Express</div>';
+                    } elseif ($layanan->ikon === 'checkroom') {
+                        $imgSrc = 'images/cucisetrika.png';
+                        $badgeHtml = ''; // No badge
+                    } elseif ($layanan->ikon === 'workspace_premium') {
+                        $imgSrc = 'images/cuci_premium.png';
+                        $badgeHtml = ''; // No badge
+                    } elseif ($layanan->ikon === 'rocket_launch') {
+                        $imgSrc = 'images/cuci_super_fast.jpg';
+                        $badgeHtml = '<div class="absolute top-5 right-5 bg-orange-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md shadow-orange-500/30 flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>Super Fast</div>';
+                    } elseif ($layanan->ikon === 'child_care') {
+                        $imgSrc = 'images/cuci_baby.jpg';
+                        $badgeHtml = '<div class="absolute top-5 right-5 bg-teal-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md shadow-teal-500/30 flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>Eco-Wash</div>';
+                    }
+                @endphp
                 <div class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-300 overflow-hidden group flex flex-col">
                     <div class="relative overflow-hidden h-60">
-                        <img src="{{ asset('images/cucikering.png') }}"
+                        <img src="{{ asset($imgSrc) }}" onerror="this.src='{{ asset('images/cucikering.png') }}'"
                              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div class="absolute top-5 right-5 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-sm font-bold text-blue-700 shadow-sm flex items-center">
-                            <svg class="w-4 h-4 mr-1 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                            Best Seller
+                        @if($layanan->status == 'Segera Hadir')
+                        <div class="absolute top-5 right-5 bg-yellow-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md shadow-yellow-500/30 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Segera Hadir
                         </div>
+                        @else
+                        {!! $badgeHtml !!}
+                        @endif
                     </div>
                     <div class="p-8 text-left flex flex-col flex-grow">
-                        <h3 class="font-bold text-2xl text-gray-800 mb-3 group-hover:text-blue-600 transition-colors">Cuci Kering</h3>
-                        <p class="text-gray-500 mb-8 line-clamp-2 leading-relaxed">Solusi tepat untuk pakaian harianmu. Bersih maksimal dan kering sempurna, siap untuk disimpan kembali ke lemarimu.</p>
+                        <h3 class="font-bold text-2xl text-gray-800 mb-3 group-hover:text-blue-600 transition-colors">{{ $layanan->nama }}</h3>
+                        <p class="text-gray-500 mb-8 line-clamp-2 leading-relaxed">{{ $layanan->deskripsi }}</p>
                         
                         <div class="mt-auto">
                             <div class="flex items-center justify-between mb-6">
                                 <div class="flex items-center text-gray-700 bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
                                     <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <span class="text-sm font-semibold">3 Hari</span>
+                                    <span class="text-sm font-semibold">{{ $layanan->waktu }}</span>
                                 </div>
                                 <div class="text-right">
                                     <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Mulai dari</span>
-                                    <span class="text-2xl font-black text-blue-600">Rp 4.000<span class="text-sm font-medium text-gray-400">/kg</span></span>
+                                    <span class="text-2xl font-black text-blue-600">Rp {{ number_format($layanan->harga, 0, ',', '.') }}<span class="text-sm font-medium text-gray-400">/{{ strtolower($layanan->tipe) == 'per kg' ? 'kg' : 'ptg' }}</span></span>
                                 </div>
                             </div>
+                            @if($layanan->status == 'Segera Hadir')
+                            <button disabled class="w-full py-3.5 px-4 bg-gray-100 text-gray-400 rounded-xl font-bold cursor-not-allowed flex justify-center items-center">
+                                <span>Segera Hadir</span>
+                            </button>
+                            @else
                             <button class="w-full py-3.5 px-4 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white rounded-xl font-bold transition-all duration-300 shadow-sm hover:shadow-blue-200 hover:shadow-lg flex justify-center items-center">
-                                <span>Pilih Layanan</span>
+                                <span>Pesan Sekarang</span>
                                 <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </button>
+                            @endif
                         </div>
                     </div>
                 </div>
-
-                <!-- Card 2 -->
-                <div class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-300 overflow-hidden group flex flex-col">
-                    <div class="relative overflow-hidden h-60">
-                        <img src="{{ asset('images/cucisetrika.png') }}"
-                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    </div>
-                    <div class="p-8 text-left flex flex-col flex-grow">
-                        <h3 class="font-bold text-2xl text-gray-800 mb-3 group-hover:text-blue-600 transition-colors">Cuci + Setrika</h3>
-                        <p class="text-gray-500 mb-8 line-clamp-2 leading-relaxed">Pakaian bersih, harum, dan disetrika rapi dengan pelicin berkualitas. Langsung siap dipakai untuk aktivitas harianmu.</p>
-                        
-                        <div class="mt-auto">
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center text-gray-700 bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
-                                    <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <span class="text-sm font-semibold">4 Hari</span>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Mulai dari</span>
-                                    <span class="text-2xl font-black text-blue-600">Rp 5.000<span class="text-sm font-medium text-gray-400">/kg</span></span>
-                                </div>
-                            </div>
-                            <button class="w-full py-3.5 px-4 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white rounded-xl font-bold transition-all duration-300 shadow-sm hover:shadow-blue-200 hover:shadow-lg flex justify-center items-center">
-                                <span>Pilih Layanan</span>
-                                <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                            </button>
-                        </div>
-                    </div>
+                @empty
+                <div class="col-span-full text-center py-10">
+                    <p class="text-gray-500 text-lg">Belum ada layanan yang tersedia saat ini.</p>
                 </div>
-
-                <!-- Card 3 -->
-                <div class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-300 overflow-hidden group flex flex-col">
-                    <div class="relative overflow-hidden h-60">
-                        <img src="{{ asset('images/cuciexpress.png') }}"
-                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div class="absolute top-5 right-5 bg-red-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md shadow-red-500/30 flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                            Express
-                        </div>
-                    </div>
-                    <div class="p-8 text-left flex flex-col flex-grow">
-                        <h3 class="font-bold text-2xl text-gray-800 mb-3 group-hover:text-blue-600 transition-colors">Cuci Express</h3>
-                        <p class="text-gray-500 mb-8 line-clamp-2 leading-relaxed">Butuh pakaian bersih dengan cepat? Layanan express kami siap menyelesaikan cucianmu dalam waktu singkat.</p>
-                        
-                        <div class="mt-auto">
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center text-gray-700 bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
-                                    <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <span class="text-sm font-semibold">1 Hari</span>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-xs text-gray-400 font-medium uppercase tracking-wider block mb-1">Mulai dari</span>
-                                    <span class="text-2xl font-black text-blue-600">Rp 4.000<span class="text-sm font-medium text-gray-400">/ptg</span></span>
-                                </div>
-                            </div>
-                            <button class="w-full py-3.5 px-4 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white rounded-xl font-bold transition-all duration-300 shadow-sm hover:shadow-blue-200 hover:shadow-lg flex justify-center items-center">
-                                <span>Pilih Layanan</span>
-                                <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                @endforelse
             </div>
         </div>
     </section>

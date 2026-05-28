@@ -134,6 +134,7 @@
                         <select name="status" onchange="this.form.submit()" class="appearance-none w-full border border-slate-200 rounded-full px-4 py-2 pr-10 text-slate-600 text-sm bg-white cursor-pointer focus:outline-none focus:border-[#4151a6] transition duration-200">
                             <option value="">Semua Status</option>
                             <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                            <option value="Segera Hadir" {{ request('status') == 'Segera Hadir' ? 'selected' : '' }}>Segera Hadir</option>
                             <option value="Tidak Aktif" {{ request('status') == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
                         </select>
                         <span class="material-icons absolute right-4 top-1/2 -translate-y-1/2 text-sm pointer-events-none text-slate-400">expand_more</span>
@@ -159,12 +160,14 @@
                             elseif ($layanan->ikon === 'bolt') $imgSrc = 'images/cuci_express.png';
                             elseif ($layanan->ikon === 'checkroom') $imgSrc = 'images/cuci_setrika.png';
                             elseif ($layanan->ikon === 'workspace_premium') $imgSrc = 'images/cuci_premium.png';
+                            elseif ($layanan->ikon === 'rocket_launch') $imgSrc = 'images/cuci_super_fast.jpg';
+                            elseif ($layanan->ikon === 'child_care') $imgSrc = 'images/cuci_baby.jpg';
                         @endphp
                         <div class="w-full h-40 sm:h-44 bg-gray-100 relative overflow-hidden">
                             <img src="{{ asset($imgSrc) }}" alt="{{ $layanan->nama }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 ease-out" onerror="this.src='{{ asset('images/laundry1.png') }}'">
                             
                             <!-- Badge Status Overlay -->
-                            <div class="absolute top-4 right-4 text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full shadow-sm {{ $layanan->status == 'Aktif' ? 'bg-[#1b9a59] text-white' : 'bg-red-500 text-white' }}">
+                            <div class="absolute top-4 right-4 text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full shadow-sm {{ $layanan->status == 'Aktif' ? 'bg-[#1b9a59] text-white' : ($layanan->status == 'Segera Hadir' ? 'bg-yellow-500 text-white' : 'bg-red-500 text-white') }}">
                                 {{ $layanan->status }}
                             </div>
                         </div>
@@ -259,6 +262,8 @@
                             elseif ($item->ikon === 'bolt') $imgSrcAkt = 'images/cuci_express.png';
                             elseif ($item->ikon === 'checkroom') $imgSrcAkt = 'images/cuci_setrika.png';
                             elseif ($item->ikon === 'workspace_premium') $imgSrcAkt = 'images/cuci_premium.png';
+                            elseif ($item->ikon === 'rocket_launch') $imgSrcAkt = 'images/cuci_super_fast.jpg';
+                            elseif ($item->ikon === 'child_care') $imgSrcAkt = 'images/cuci_baby.jpg';
                         @endphp
                         <div class="rounded-full h-10 w-10 flex items-center justify-center shrink-0 overflow-hidden border border-blue-100 shadow-sm bg-[#eaf4fb]">
                             <img src="{{ asset($imgSrcAkt) }}" alt="{{ $item->nama }}" class="w-full h-full object-cover" onerror="this.src='{{ asset('images/laundry1.png') }}'">
@@ -268,6 +273,8 @@
                             <div class="text-xs text-gray-500">{{ $item->tipe }} &bull; Rp{{ number_format($item->harga, 0, ',', '.') }} &bull;
                                 @if($item->status == 'Aktif')
                                     <span class="text-green-600 font-semibold">Aktif</span>
+                                @elseif($item->status == 'Segera Hadir')
+                                    <span class="text-yellow-500 font-semibold">Segera Hadir</span>
                                 @else
                                     <span class="text-red-500 font-semibold">Tidak Aktif</span>
                                 @endif
@@ -327,19 +334,22 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
                     <select name="status" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4151a6] bg-white">
                         <option value="Aktif">Aktif</option>
+                        <option value="Segera Hadir">Segera Hadir</option>
                         <option value="Tidak Aktif">Tidak Aktif</option>
                     </select>
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Kategori Ikon</label>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Kategori Gambar</label>
                 <select name="kategori_ikon" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4151a6] bg-white">
                     <option value="Standar">Cuci Kering / Standar (Foto Cuci Kering)</option>
                     <option value="Cuci + Setrika">Cuci + Setrika (Foto Cuci + Setrika)</option>
                     <option value="Cuci Express">Cuci Express (Foto Cuci Express)</option>
                     <option value="Premium">Premium (Foto Cuci Premium)</option>
                     <option value="Setrika Saja">Setrika Saja (Foto Setrika Saja)</option>
+                    <option value="Cuci Super Fast">Cuci Super Fast / Flash (Foto Super Fast)</option>
+                    <option value="Cuci Sensitif">Cuci Sensitif / Baby Eco-Wash (Foto Sensitif)</option>
                 </select>
             </div>
 
@@ -394,6 +404,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Status</label>
                     <select id="edit_status" name="status" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4151a6] bg-white">
                         <option value="Aktif">Aktif</option>
+                        <option value="Segera Hadir">Segera Hadir</option>
                         <option value="Tidak Aktif">Tidak Aktif</option>
                     </select>
                 </div>
@@ -407,6 +418,8 @@
                     <option value="Cuci Express">Cuci Express (Foto Cuci Express)</option>
                     <option value="Premium">Premium (Foto Cuci Premium)</option>
                     <option value="Setrika Saja">Setrika Saja (Foto Setrika Saja)</option>
+                    <option value="Cuci Super Fast">Cuci Super Fast / Flash (Foto Super Fast)</option>
+                    <option value="Cuci Sensitif">Cuci Sensitif / Baby Eco-Wash (Foto Sensitif)</option>
                 </select>
             </div>
 
@@ -450,6 +463,8 @@
         else if(ikon === 'bolt') kategori = 'Cuci Express';
         else if(ikon === 'workspace_premium') kategori = 'Premium';
         else if(ikon === 'iron') kategori = 'Setrika Saja';
+        else if(ikon === 'rocket_launch') kategori = 'Cuci Super Fast';
+        else if(ikon === 'child_care') kategori = 'Cuci Sensitif';
 
         document.getElementById('edit_kategori_ikon').value = kategori;
 

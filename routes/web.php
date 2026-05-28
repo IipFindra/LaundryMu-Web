@@ -15,7 +15,8 @@ use App\Http\Controllers\LaporanController;
 
 // Halaman awal (Landing Page)
 Route::get('/', function () {
-    return view('welcome');
+    $layanans = \App\Models\Layanan::whereIn('status', ['Aktif', 'Segera Hadir'])->get();
+    return view('welcome', compact('layanans'));
 });
 
 // Login

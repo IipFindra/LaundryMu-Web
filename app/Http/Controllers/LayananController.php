@@ -47,7 +47,7 @@ class LayananController extends Controller
             'waktu' => 'required|string|max:255',
             'harga' => 'required|integer|min:0',
             'deskripsi' => 'nullable|string',
-            'status' => 'required|string|in:Aktif,Tidak Aktif',
+            'status' => 'required|string|in:Aktif,Tidak Aktif,Segera Hadir',
             'kategori_ikon' => 'required|string',
         ]);
 
@@ -69,7 +69,7 @@ class LayananController extends Controller
             'waktu' => 'required|string|max:255',
             'harga' => 'required|integer|min:0',
             'deskripsi' => 'nullable|string',
-            'status' => 'required|string|in:Aktif,Tidak Aktif',
+            'status' => 'required|string|in:Aktif,Tidak Aktif,Segera Hadir',
             'kategori_ikon' => 'required|string',
         ]);
 
@@ -109,6 +109,14 @@ class LayananController extends Controller
             $validated['ikon'] = 'iron';
             $validated['warna_ikon'] = 'bg-pink-100 text-pink-500 border-2 border-pink-200';
             $validated['warna_tipe'] = 'bg-pink-100 text-pink-700';
+        } elseif($kategori == 'Cuci Super Fast') {
+            $validated['ikon'] = 'rocket_launch';
+            $validated['warna_ikon'] = 'bg-red-100 text-red-500 border-2 border-red-200';
+            $validated['warna_tipe'] = 'bg-red-100 text-red-700';
+        } elseif($kategori == 'Cuci Sensitif') {
+            $validated['ikon'] = 'child_care';
+            $validated['warna_ikon'] = 'bg-teal-100 text-teal-500 border-2 border-teal-200';
+            $validated['warna_tipe'] = 'bg-teal-100 text-teal-700';
         } else {
             // Default: Cuci Kering / Biasa
             $validated['ikon'] = 'local_laundry_service';
