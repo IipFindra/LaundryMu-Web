@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 class Notification extends Model
 {
     protected $table = 'notifikasi';
+    protected $primaryKey = 'id_notifikasi';
 
     protected $fillable = [
         'pelanggan_id', 'id_pesanan', 'judul', 'isi', 'status_baca', 'id_admin'

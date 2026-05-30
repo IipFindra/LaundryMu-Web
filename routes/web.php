@@ -64,6 +64,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/layanan/{id}', [LayananController::class, 'destroy'])->name('layanan.destroy');
 
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
+    Route::get('/laporan/export-pdf', [LaporanController::class, 'exportPdf'])->name('laporan.export.pdf');
 
     Route::get('/pesanan/{id}/struk', [PesananController::class, 'generateStruk'])
         ->name('pesanan.struk');

@@ -173,25 +173,46 @@
                 </section>
 
                 <section id="laporan-pendapatan" class="bg-white rounded-3xl border border-gray-200 shadow-sm p-8">
-                    <div class="flex items-center justify-between mb-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
                         <div>
                             <h3 class="text-2xl font-bold text-gray-900">Laporan Pendapatan</h3>
-                            <p class="text-sm text-gray-500">Perbandingan pendapatan harian dan bulanan.</p>
+                            <p class="text-sm text-gray-500">Perbandingan pendapatan harian selama {{ $range }} hari terakhir.</p>
                         </div>
-                        <a href="#" class="text-[#3e51b5] font-semibold hover:underline">Lihat semua</a>
+                        <div class="flex items-center gap-3">
+                            <div class="bg-gray-100 rounded-xl p-1 flex shadow-inner">
+                                <a href="{{ route('laporan', ['range' => 7]) }}#laporan-pendapatan" class="px-4 py-2 text-sm font-semibold rounded-lg transition-all {{ $range == 7 ? 'bg-white text-[#4151a6] shadow-sm' : 'text-gray-500 hover:text-gray-800' }}">7 Hari</a>
+                                <a href="{{ route('laporan', ['range' => 30]) }}#laporan-pendapatan" class="px-4 py-2 text-sm font-semibold rounded-lg transition-all {{ $range == 30 ? 'bg-white text-[#4151a6] shadow-sm' : 'text-gray-500 hover:text-gray-800' }}">30 Hari</a>
+                            </div>
+                            <a href="{{ route('laporan.export.pdf', ['range' => $range]) }}" target="_blank" class="flex items-center gap-2 bg-[#ef4444] hover:bg-[#dc2626] text-white font-bold py-2 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
+                                <span class="material-icons text-[18px]">picture_as_pdf</span>
+                                Ekspor PDF
+                            </a>
+                        </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="rounded-2xl bg-[#ffefeb] p-5">
-                            <div class="text-sm text-[#b45309] font-semibold">Total Hari Ini</div>
-                            <div class="mt-3 text-3xl font-bold text-[#92400e]">Rp{{ number_format($pendapatanHariIni, 0, ',', '.') }}</div>
+
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <!-- CHART -->
+                        <div class="flex-1 bg-[#f8fafc] border border-gray-100 p-4 rounded-2xl shadow-inner h-80">
+                            <canvas id="revenueChart"></canvas>
                         </div>
-                        <div class="rounded-2xl bg-[#eff6ff] p-5">
-                            <div class="text-sm text-[#1d4ed8] font-semibold">Total Bulan Ini</div>
-                            <div class="mt-3 text-3xl font-bold text-[#1e40af]">Rp{{ number_format($pendapatanBulanIni, 0, ',', '.') }}</div>
-                        </div>
-                        <div class="rounded-2xl bg-[#f0fdf4] p-5">
-                            <div class="text-sm text-[#15803d] font-semibold">Rata-rata Per Transaksi</div>
-                            <div class="mt-3 text-3xl font-bold text-[#166534]">Rp{{ number_format($rataRataTransaksi, 0, ',', '.') }}</div>
+
+                        <!-- STATS -->
+                        <div class="w-full lg:w-72 flex flex-col gap-4">
+                            <div class="rounded-2xl bg-[#ffefeb] p-5 border border-orange-100 flex-1 flex flex-col justify-center relative overflow-hidden group hover:shadow-md transition">
+                                <div class="absolute -right-4 -top-4 bg-orange-100 rounded-full h-16 w-16 group-hover:scale-150 transition duration-500 opacity-50"></div>
+                                <div class="text-sm text-[#b45309] font-semibold relative z-10">Total Hari Ini</div>
+                                <div class="mt-2 text-2xl font-black text-[#92400e] relative z-10">Rp{{ number_format($pendapatanHariIni, 0, ',', '.') }}</div>
+                            </div>
+                            <div class="rounded-2xl bg-[#eff6ff] p-5 border border-blue-100 flex-1 flex flex-col justify-center relative overflow-hidden group hover:shadow-md transition">
+                                <div class="absolute -right-4 -top-4 bg-blue-100 rounded-full h-16 w-16 group-hover:scale-150 transition duration-500 opacity-50"></div>
+                                <div class="text-sm text-[#1d4ed8] font-semibold relative z-10">Total Bulan Ini</div>
+                                <div class="mt-2 text-2xl font-black text-[#1e40af] relative z-10">Rp{{ number_format($pendapatanBulanIni, 0, ',', '.') }}</div>
+                            </div>
+                            <div class="rounded-2xl bg-[#f0fdf4] p-5 border border-green-100 flex-1 flex flex-col justify-center relative overflow-hidden group hover:shadow-md transition">
+                                <div class="absolute -right-4 -top-4 bg-green-100 rounded-full h-16 w-16 group-hover:scale-150 transition duration-500 opacity-50"></div>
+                                <div class="text-sm text-[#15803d] font-semibold relative z-10">Rata-rata Per Transaksi</div>
+                                <div class="mt-2 text-2xl font-black text-[#166534] relative z-10">Rp{{ number_format($rataRataTransaksi, 0, ',', '.') }}</div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -219,8 +240,75 @@
                         </div>
                     </div>
                 </section>
-            </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        
+        const gradientBar = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientBar.addColorStop(0, '#f59e0b'); // amber-500
+        gradientBar.addColorStop(1, '#fcd34d'); // amber-300
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($chartLabels ?? []) !!},
+                datasets: [{
+                    label: 'Pendapatan Harian',
+                    data: {!! json_encode($chartData ?? []) !!},
+                    backgroundColor: gradientBar,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    barPercentage: 0.6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        padding: 12,
+                        borderRadius: 12,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Rp ' + context.raw.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#e2e8f0',
+                            borderDash: [5, 5]
+                        },
+                        ticks: {
+                            color: '#64748b',
+                            font: { family: 'sans-serif', size: 11 },
+                            callback: function(value) {
+                                if (value >= 1000000) return 'Rp ' + (value/1000000) + 'M';
+                                if (value >= 1000) return 'Rp ' + (value/1000) + 'k';
+                                return 'Rp ' + value;
+                            }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#64748b',
+                            font: { family: 'sans-serif', size: 11, weight: '600' }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
 @endsection

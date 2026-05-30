@@ -7,22 +7,7 @@
 @endphp
 
 <div class="flex items-center gap-2 relative">
-    {{-- SEARCH --}}
-    <div class="relative" id="searchWrapper">
-        <button onclick="toggleSearch()" class="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-[#eaf4fb] transition" title="Pencarian Global (Ctrl+K)">
-            <span class="material-icons text-gray-500 text-xl">search</span>
-        </button>
-        <div id="searchBox" class="hidden absolute right-0 top-12 w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden" style="z-index:99;">
-            <div class="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
-                <span class="material-icons text-[#3e51b5]">search</span>
-                <input id="searchInput" type="text" placeholder="Cari nota, pelanggan, kategori..." class="flex-1 outline-none text-sm bg-transparent" autocomplete="off">
-                <kbd class="text-[10px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded font-mono">ESC</kbd>
-            </div>
-            <div id="searchResults" class="max-h-72 overflow-y-auto"></div>
-            <div id="searchEmpty" class="hidden px-4 py-6 text-center text-gray-400 text-sm">Tidak ada hasil ditemukan</div>
-            <div id="searchHint" class="px-4 py-3 text-xs text-gray-400 border-t border-gray-50">Ketik minimal 1 karakter untuk mencari...</div>
-        </div>
-    </div>
+
     {{-- NOTIFICATIONS --}}
     <div class="relative" id="notifWrapper">
         <button onclick="toggleDropdown('notifPanel')" class="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-[#eaf4fb] transition relative">
@@ -36,20 +21,16 @@
             </div>
             <div class="max-h-80 overflow-y-auto custom-scrollbar" id="notifList">
                 @forelse($headerNotifikasi as $n)
-                <div class="flex items-start gap-3 px-4 py-3 hover:bg-[#f8faff] transition cursor-pointer border-b border-gray-50 {{ $n->dibaca ? 'opacity-60' : '' }}" onclick="markNotifRead({{ $n->id }})">
-                    <div class="h-9 w-9 rounded-full flex items-center justify-center flex-shrink-0
-                        {{ $n->warna == 'blue' ? 'bg-blue-100 text-blue-500' : '' }}
-                        {{ $n->warna == 'yellow' ? 'bg-yellow-100 text-yellow-600' : '' }}
-                        {{ $n->warna == 'red' ? 'bg-red-100 text-red-500' : '' }}
-                        {{ $n->warna == 'orange' ? 'bg-orange-100 text-orange-500' : '' }}">
-                        <span class="material-icons text-lg">{{ $n->ikon }}</span>
+                <div class="flex items-start gap-3 px-4 py-3 hover:bg-[#f8faff] transition cursor-pointer border-b border-gray-50 {{ $n->status_baca ? 'opacity-60' : '' }}" onclick="markNotifRead({{ $n->id_notifikasi }})">
+                    <div class="h-9 w-9 rounded-full flex items-center justify-center flex-shrink-0 bg-blue-100 text-blue-500">
+                        <span class="material-icons text-lg">notifications</span>
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="font-semibold text-xs text-gray-800 truncate">{{ $n->judul }}</div>
-                        <div class="text-xs text-gray-500 truncate">{{ $n->pesan }}</div>
+                        <div class="text-xs text-gray-500 truncate">{{ $n->isi }}</div>
                         <div class="text-[10px] text-gray-400 mt-0.5">{{ $n->created_at->diffForHumans() }}</div>
                     </div>
-                    @if(!$n->dibaca)<div class="h-2 w-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>@endif
+                    @if(!$n->status_baca)<div class="h-2 w-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>@endif
                 </div>
                 @empty
                 <div class="px-4 py-8 text-center text-gray-400 text-sm">Belum ada notifikasi</div>
@@ -89,45 +70,18 @@
                 <div class="px-4 py-8 text-center text-gray-400 text-sm">Belum ada pesan</div>
                 @endforelse
             </div>
-            <div class="px-4 py-2.5 border-t border-gray-100 flex items-center justify-between">
-                <a href="#" class="text-xs text-[#3e51b5] font-semibold hover:underline">Lihat Semua Pesan</a>
-                <button class="text-xs bg-[#3e51b5] text-white px-3 py-1 rounded-lg hover:bg-[#2d3e90] transition font-semibold">Broadcast Promo</button>
+            <div class="px-4 py-2.5 border-t border-gray-100 flex items-center justify-center">
+                <a href="{{ route('pelanggan') }}" class="text-xs text-[#3e51b5] font-semibold hover:underline">Lihat Semua Pesan</a>
             </div>
         </div>
     </div>
-    {{-- ACCOUNT --}}
-    <div class="relative ml-1" id="accountWrapper">
-        <button onclick="toggleDropdown('accountPanel')" class="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-[#eaf4fb] transition">
-            <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}" class="h-9 w-9 rounded-full border-2 border-[#eaf4fb] object-cover">
-            <span class="font-semibold text-gray-700 text-sm">{{ auth()->user()->name }}</span>
-            <span class="material-icons text-gray-400 text-base">arrow_drop_down</span>
-        </button>
-        <div id="accountPanel" class="hidden absolute right-0 top-12 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden" style="z-index:99;">
-            <div class="px-4 py-3 border-b border-gray-100 flex items-center gap-3">
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}" class="h-10 w-10 rounded-full border-2 border-[#eaf4fb]">
-                <div>
-                    <div class="font-bold text-sm text-gray-800">{{ auth()->user()->name }}</div>
-                    <div class="text-xs text-gray-400">{{ auth()->user()->email }}</div>
-                </div>
-            </div>
-            <div class="py-1">
-                <a href="#" class="flex items-center gap-3 px-4 py-2.5 hover:bg-[#f8faff] transition text-sm text-gray-700"><span class="material-icons text-lg text-[#3e51b5]">person</span>Profil Saya</a>
-                <a href="#" class="flex items-center gap-3 px-4 py-2.5 hover:bg-[#f8faff] transition text-sm text-gray-700"><span class="material-icons text-lg text-[#3e51b5]">store</span>Pengaturan Outlet</a>
-                <a href="#" class="flex items-center gap-3 px-4 py-2.5 hover:bg-[#f8faff] transition text-sm text-gray-700"><span class="material-icons text-lg text-[#3e51b5]">history</span>Log Aktivitas</a>
-            </div>
-            <div class="border-t border-gray-100 py-1">
-                <form action="{{ route('logout') }}" method="POST">@csrf
-                    <button type="submit" class="flex items-center gap-3 px-4 py-2.5 hover:bg-red-50 transition text-sm text-red-500 w-full"><span class="material-icons text-lg">logout</span>Logout</button>
-                </form>
-            </div>
-        </div>
-    </div>
+
 </div>
 
 {{-- Header Actions JavaScript --}}
 <script>
 // Dropdown Toggle
-const panels = ['notifPanel','msgPanel','accountPanel','searchBox'];
+const panels = ['notifPanel','msgPanel'];
 function closeAllPanels(except) {
     panels.forEach(id => { const el = document.getElementById(id); if(el && id !== except) el.classList.add('hidden'); });
 }
@@ -138,13 +92,6 @@ function toggleDropdown(id) {
     if(isHidden) { el.classList.remove('hidden'); el.style.animation='dropdownIn 0.2s ease'; }
     else { el.classList.add('hidden'); }
 }
-function toggleSearch() {
-    const box = document.getElementById('searchBox');
-    const isHidden = box.classList.contains('hidden');
-    closeAllPanels('searchBox');
-    if(isHidden) { box.classList.remove('hidden'); box.style.animation='dropdownIn 0.2s ease'; setTimeout(()=>document.getElementById('searchInput').focus(),100); }
-    else { box.classList.add('hidden'); }
-}
 document.addEventListener('click', function(e) {
     panels.forEach(id => {
         const panel = document.getElementById(id);
@@ -154,45 +101,9 @@ document.addEventListener('click', function(e) {
     });
 });
 document.addEventListener('keydown', function(e) {
-    if((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); toggleSearch(); }
     if(e.key === 'Escape') { closeAllPanels(); }
 });
 
-// Global Search
-let searchTimeout;
-document.getElementById('searchInput').addEventListener('input', function() {
-    clearTimeout(searchTimeout);
-    const q = this.value.trim();
-    const results = document.getElementById('searchResults');
-    const empty = document.getElementById('searchEmpty');
-    const hint = document.getElementById('searchHint');
-    if(q.length < 1) { results.innerHTML=''; empty.classList.add('hidden'); hint.classList.remove('hidden'); return; }
-    hint.classList.add('hidden');
-    searchTimeout = setTimeout(() => {
-        fetch('/api/search?q=' + encodeURIComponent(q))
-        .then(r=>r.json())
-        .then(data => {
-            if(data.length === 0) { results.innerHTML=''; empty.classList.remove('hidden'); return; }
-            empty.classList.add('hidden');
-            results.innerHTML = data.map(item => `
-                <a href="/edit-pesanan/${item.id}" class="flex items-center gap-3 px-4 py-3 hover:bg-[#f0f5ff] transition border-b border-gray-50 cursor-pointer">
-                    <div class="h-9 w-9 rounded-full bg-[#eaf4fb] flex items-center justify-center flex-shrink-0">
-                        <span class="material-icons text-[#3e51b5] text-lg">receipt_long</span>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-xs text-[#3e51b5]">${item.nota}</span>
-                            <span class="text-xs px-1.5 py-0.5 rounded-full font-semibold ${item.status==='Selesai'?'bg-green-100 text-green-700':item.status==='Proses'?'bg-yellow-100 text-yellow-700':'bg-blue-100 text-blue-700'}">${item.status}</span>
-                        </div>
-                        <div class="text-xs text-gray-700 font-medium truncate">${item.nama_pelanggan}</div>
-                        <div class="text-[10px] text-gray-400">${item.kategori} · ${item.harga} · ${item.tanggal}</div>
-                    </div>
-                    <span class="material-icons text-gray-300 text-base">chevron_right</span>
-                </a>
-            `).join('');
-        }).catch(()=>{ results.innerHTML=''; empty.classList.remove('hidden'); });
-    }, 300);
-});
 
 // Notifications & Messages
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';

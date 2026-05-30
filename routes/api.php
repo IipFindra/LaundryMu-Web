@@ -19,6 +19,7 @@ Route::get('layanans', [LayananApiController::class, 'index']);
 Route::post('orders', [LaundryController::class, 'createOrder']);
 Route::get('orders/pelanggan', [LaundryController::class, 'getOrdersByPelanggan']);
 Route::get('tracking/{id}', [LaundryController::class, 'getTracking']);
+Route::post('chat/receive', [\App\Http\Controllers\DashboardController::class, 'receiveCustomerMessage']);
 
 // ─── Protected routes ───
 Route::middleware([])->group(function () {

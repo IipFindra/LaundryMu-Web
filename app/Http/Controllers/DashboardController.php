@@ -32,18 +32,29 @@ class DashboardController extends Controller
         $chartRevenue = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = \Carbon\Carbon::now()->subMonths($i);
-            $chartMonths[] = $date->locale('id')->isoFormat('MMMM');
+            $chartMonths[] = $date->locale('id')->isoFormat('MMM');
             
-            $revenue = Pesanan::whereYear('tanggal', $date->year)
-                ->whereMonth('tanggal', $date->month)
+            $revenue = Pesanan::whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
                 ->sum('harga');
             $chartRevenue[] = (int) $revenue;
+        }
+
+        // Ambil data pendapatan 7 hari terakhir secara dinamis
+        $chartDays = [];
+        $chartRevenueDaily = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = \Carbon\Carbon::today()->subDays($i);
+            $chartDays[] = $date->locale('id')->isoFormat('D MMM');
+            
+            $revenue = Pesanan::whereDate('created_at', $date)->sum('harga');
+            $chartRevenueDaily[] = (int) $revenue;
         }
 
         return view('dashboard', compact(
             'notifikasi', 'unreadNotif', 'pesan', 'unreadPesan',
             'totalPesananBaru', 'totalPelanggan', 'totalPendapatan', 'totalPesananSelesai',
-            'pesananTerbaru', 'chartMonths', 'chartRevenue'
+            'pesananTerbaru', 'chartMonths', 'chartRevenue', 'chartDays', 'chartRevenueDaily'
         ));
     }
 
@@ -192,6 +203,31 @@ class DashboardController extends Controller
                 'is_admin' => true,
                 'dibaca' => false,
             ]
+        ]);
+    }
+
+    /**
+     * Receive a chat message from a customer
+     */
+    public function receiveCustomerMessage(Request $request)
+    {
+        $request->validate([
+            'nama_pengirim' => 'required|string',
+            'pesan' => 'required|string',
+        ]);
+
+        $msgCustomer = Message::create([
+            'nama_pengirim' => $request->nama_pengirim,
+            'subjek' => 'Pesan dari ' . $request->nama_pengirim,
+            'pesan' => $request->pesan,
+            'tipe' => 'chat_pelanggan',
+            'dibaca' => false,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pesan berhasil dikirim ke Admin',
+            'data' => $msgCustomer
         ]);
     }
 

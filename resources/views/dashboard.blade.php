@@ -164,11 +164,11 @@
                 <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
                     <h2 class="font-bold text-lg text-slate-850 flex items-center gap-2">
                         <span class="material-icons text-[#4151a6]">bar_chart</span>
-                        Statik Pendapatan
+                        Statistik Pendapatan
                     </h2>
                     <div class="flex items-center gap-2 bg-[#f1f5f9] rounded-xl p-1">
-                        <button class="px-3 py-1.5 text-xs font-bold bg-white rounded-lg shadow-sm text-[#4151a6]">7 Bulan</button>
-                        <button class="px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800">30 Bulan</button>
+                        <button id="btnHarian" onclick="updateChart('harian')" class="px-3 py-1.5 text-xs font-bold bg-white rounded-lg shadow-sm text-[#4151a6] transition-all">Harian</button>
+                        <button id="btnBulanan" onclick="updateChart('bulanan')" class="px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-all">Bulanan</button>
                     </div>
                 </div>
                 <div class="w-full h-72">
@@ -228,13 +228,25 @@
     gradient.addColorStop(0, 'rgba(79, 70, 229, 0.4)');
     gradient.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
 
-    new Chart(ctx, {
+    // Data Harian (7 Hari Terakhir)
+    const dataHarian = {
+        labels: {!! json_encode($chartDays ?? []) !!},
+        data: {!! json_encode($chartRevenueDaily ?? []) !!}
+    };
+
+    // Data Bulanan (7 Bulan Terakhir)
+    const dataBulanan = {
+        labels: {!! json_encode($chartMonths ?? []) !!},
+        data: {!! json_encode($chartRevenue ?? []) !!}
+    };
+
+    let revenueChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: {!! json_encode($chartMonths) !!},
+            labels: dataHarian.labels,
             datasets: [{
                 label: 'Pendapatan',
-                data: {!! json_encode($chartRevenue) !!},
+                data: dataHarian.data,
                 backgroundColor: gradient,
                 borderColor: '#4f46e5',
                 borderWidth: 3,
@@ -277,12 +289,39 @@
                     ticks: { 
                         color: '#64748b',
                         font: { family: 'sans-serif', size: 11 },
-                        callback: function(v) { return 'Rp ' + v.toLocaleString('id-ID'); } 
+                        callback: function(v) { 
+                            if (v >= 1000000) return 'Rp ' + (v/1000000) + 'M';
+                            if (v >= 1000) return 'Rp ' + (v/1000) + 'k';
+                            return 'Rp ' + v;
+                        } 
                     } 
                 }
             }
         }
     });
+
+    function updateChart(tipe) {
+        const btnHarian = document.getElementById('btnHarian');
+        const btnBulanan = document.getElementById('btnBulanan');
+
+        if (tipe === 'harian') {
+            revenueChart.data.labels = dataHarian.labels;
+            revenueChart.data.datasets[0].data = dataHarian.data;
+            
+            // Aktifkan styling tombol Harian
+            btnHarian.className = 'px-3 py-1.5 text-xs font-bold bg-white rounded-lg shadow-sm text-[#4151a6] transition-all';
+            btnBulanan.className = 'px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-all';
+        } else {
+            revenueChart.data.labels = dataBulanan.labels;
+            revenueChart.data.datasets[0].data = dataBulanan.data;
+            
+            // Aktifkan styling tombol Bulanan
+            btnBulanan.className = 'px-3 py-1.5 text-xs font-bold bg-white rounded-lg shadow-sm text-[#4151a6] transition-all';
+            btnHarian.className = 'px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-all';
+        }
+
+        revenueChart.update();
+    }
 </script>
 
 <style>

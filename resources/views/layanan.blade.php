@@ -223,74 +223,125 @@
             </div>
             @endif
 
-            <!-- AKTIVITAS TERBARU -->
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 w-full max-w-xl">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2 text-[#2d3e90] font-bold text-lg">
-                        <span class="material-icons">schedule</span>
-                        Aktivitas Terbaru
-                    </div>
-                    <a href="#" class="text-blue-500 text-sm font-semibold flex items-center">
-                        Lihat Semua <span class="material-icons text-sm ml-1">chevron_right</span>
-                    </a>
-                </div>
-
-                {{-- Flash notification saat ada perubahan --}}
-                @if(session('aktivitas_baru'))
-                <div id="flashNotif" class="flex items-center gap-3 bg-green-50 border border-green-200 rounded-2xl px-4 py-3 mb-4 animate-pulse">
-                    <div class="bg-green-100 text-green-600 rounded-full h-9 w-9 flex items-center justify-center shrink-0">
-                        <span class="material-icons text-lg">check_circle</span>
-                    </div>
-                    <div class="flex-1">
-                        <div class="text-sm font-bold text-green-700">{{ session('aktivitas_baru') }}</div>
-                        <div class="text-xs text-green-500">Baru saja</div>
-                    </div>
-                    <button onclick="document.getElementById('flashNotif').remove()" class="text-green-400 hover:text-green-600 transition">
-                        <span class="material-icons text-sm">close</span>
-                    </button>
-                </div>
-                @endif
-
-                {{-- Daftar aktivitas terbaru --}}
-                @if(count($aktivitas) > 0)
-                <div class="divide-y divide-gray-100">
-                    @foreach($aktivitas as $item)
-                    <div class="flex items-center gap-4 py-3 {{ $loop->first ? '' : '' }}">
-                        @php
-                            $imgSrcAkt = 'images/cuci_kering.png';
-                            if ($item->ikon === 'iron') $imgSrcAkt = 'images/setrika_saja.jpg';
-                            elseif ($item->ikon === 'bolt') $imgSrcAkt = 'images/cuci_express.png';
-                            elseif ($item->ikon === 'checkroom') $imgSrcAkt = 'images/cuci_setrika.png';
-                            elseif ($item->ikon === 'workspace_premium') $imgSrcAkt = 'images/cuci_premium.png';
-                            elseif ($item->ikon === 'rocket_launch') $imgSrcAkt = 'images/cuci_super_fast.jpg';
-                            elseif ($item->ikon === 'child_care') $imgSrcAkt = 'images/cuci_baby.jpg';
-                        @endphp
-                        <div class="rounded-full h-10 w-10 flex items-center justify-center shrink-0 overflow-hidden border border-blue-100 shadow-sm bg-[#eaf4fb]">
-                            <img src="{{ asset($imgSrcAkt) }}" alt="{{ $item->nama }}" class="w-full h-full object-cover" onerror="this.src='{{ asset('images/laundry1.png') }}'">
+            <!-- BOTTOM SECTION: AKTIVITAS & POPULER -->
+            <div class="flex flex-col lg:flex-row gap-6 w-full mb-8">
+                <!-- AKTIVITAS TERBARU -->
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 lg:max-w-xl w-full">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2 text-[#2d3e90] font-bold text-lg">
+                            <span class="material-icons">schedule</span>
+                            Aktivitas Terbaru
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="text-sm font-bold text-gray-800 truncate">{{ $item->nama }}</div>
-                            <div class="text-xs text-gray-500">{{ $item->tipe }} &bull; Rp{{ number_format($item->harga, 0, ',', '.') }} &bull;
-                                @if($item->status == 'Aktif')
-                                    <span class="text-green-600 font-semibold">Aktif</span>
-                                @elseif($item->status == 'Segera Hadir')
-                                    <span class="text-yellow-500 font-semibold">Segera Hadir</span>
-                                @else
-                                    <span class="text-red-500 font-semibold">Tidak Aktif</span>
-                                @endif
+                        <a href="#" class="text-blue-500 text-sm font-semibold flex items-center">
+                            Lihat Semua <span class="material-icons text-sm ml-1">chevron_right</span>
+                        </a>
+                    </div>
+
+                    {{-- Flash notification saat ada perubahan --}}
+                    @if(session('aktivitas_baru'))
+                    <div id="flashNotif" class="flex items-center gap-3 bg-green-50 border border-green-200 rounded-2xl px-4 py-3 mb-4 animate-pulse">
+                        <div class="bg-green-100 text-green-600 rounded-full h-9 w-9 flex items-center justify-center shrink-0">
+                            <span class="material-icons text-lg">check_circle</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-bold text-green-700">{{ session('aktivitas_baru') }}</div>
+                            <div class="text-xs text-green-500">Baru saja</div>
+                        </div>
+                        <button onclick="document.getElementById('flashNotif').remove()" class="text-green-400 hover:text-green-600 transition">
+                            <span class="material-icons text-sm">close</span>
+                        </button>
+                    </div>
+                    @endif
+
+                    {{-- Daftar aktivitas terbaru --}}
+                    @if(count($aktivitas) > 0)
+                    <div class="divide-y divide-gray-100">
+                        @foreach($aktivitas as $item)
+                        <div class="flex items-center gap-4 py-3 {{ $loop->first ? '' : '' }}">
+                            @php
+                                $imgSrcAkt = 'images/cuci_kering.png';
+                                if ($item->ikon === 'iron') $imgSrcAkt = 'images/setrika_saja.jpg';
+                                elseif ($item->ikon === 'bolt') $imgSrcAkt = 'images/cuci_express.png';
+                                elseif ($item->ikon === 'checkroom') $imgSrcAkt = 'images/cuci_setrika.png';
+                                elseif ($item->ikon === 'workspace_premium') $imgSrcAkt = 'images/cuci_premium.png';
+                                elseif ($item->ikon === 'rocket_launch') $imgSrcAkt = 'images/cuci_super_fast.jpg';
+                                elseif ($item->ikon === 'child_care') $imgSrcAkt = 'images/cuci_baby.jpg';
+                            @endphp
+                            <div class="rounded-full h-10 w-10 flex items-center justify-center shrink-0 overflow-hidden border border-blue-100 shadow-sm bg-[#eaf4fb]">
+                                <img src="{{ asset($imgSrcAkt) }}" alt="{{ $item->nama }}" class="w-full h-full object-cover" onerror="this.src='{{ asset('images/laundry1.png') }}'">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-bold text-gray-800 truncate">{{ $item->nama }}</div>
+                                <div class="text-xs text-gray-500">{{ $item->tipe }} &bull; Rp{{ number_format($item->harga, 0, ',', '.') }} &bull;
+                                    @if($item->status == 'Aktif')
+                                        <span class="text-green-600 font-semibold">Aktif</span>
+                                    @elseif($item->status == 'Segera Hadir')
+                                        <span class="text-yellow-500 font-semibold">Segera Hadir</span>
+                                    @else
+                                        <span class="text-red-500 font-semibold">Tidak Aktif</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-400 whitespace-nowrap">
+                                {{ $item->updated_at->diffForHumans() }}
                             </div>
                         </div>
-                        <div class="text-xs text-gray-400 whitespace-nowrap">
-                            {{ $item->updated_at->diffForHumans() }}
-                        </div>
+                        @endforeach
                     </div>
-                    @endforeach
+                    @else
+                    <div class="text-center text-gray-400 py-4 text-sm">
+                        Belum ada aktivitas.
+                    </div>
+                    @endif
                 </div>
-                @else
-                <div class="text-center text-gray-400 py-4 text-sm">
-                    Belum ada aktivitas.
+
+                <!-- LAYANAN TERPOPULER -->
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex-1 w-full flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2 text-[#2d3e90] font-bold text-lg">
+                            <span class="material-icons text-yellow-500 text-2xl">emoji_events</span>
+                            Layanan Terpopuler
+                        </div>
+                        <span class="text-xs bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full font-bold">Top 3</span>
+                    </div>
+                    
+                    @if(count($layananPopuler ?? []) > 0)
+                    <div class="grid gap-3 mt-2 flex-1">
+                        @foreach($layananPopuler as $index => $populer)
+                        @php
+                            $imgSrcPop = 'images/cuci_kering.png';
+                            if ($populer->ikon === 'iron') $imgSrcPop = 'images/setrika_saja.jpg';
+                            elseif ($populer->ikon === 'bolt') $imgSrcPop = 'images/cuci_express.png';
+                            elseif ($populer->ikon === 'checkroom') $imgSrcPop = 'images/cuci_setrika.png';
+                            elseif ($populer->ikon === 'workspace_premium') $imgSrcPop = 'images/cuci_premium.png';
+                            elseif ($populer->ikon === 'rocket_launch') $imgSrcPop = 'images/cuci_super_fast.jpg';
+                            elseif ($populer->ikon === 'child_care') $imgSrcPop = 'images/cuci_baby.jpg';
+                        @endphp
+                        <div class="flex items-center gap-4 bg-slate-50 border border-slate-100 p-3 rounded-2xl hover:bg-[#eaf4fb] transition duration-200 shadow-sm cursor-pointer" onclick="openEditModal({{ $populer->id }}, '{{ addslashes($populer->nama) }}', '{{ $populer->tipe }}', '{{ $populer->waktu }}', {{ $populer->harga }}, '{{ $populer->status }}', '{{ addslashes($populer->deskripsi) }}', '{{ $populer->ikon }}')">
+                            <div class="relative w-14 h-14 rounded-xl overflow-hidden shadow-sm shrink-0">
+                                <img src="{{ asset($imgSrcPop) }}" class="w-full h-full object-cover" onerror="this.src='{{ asset('images/laundry1.png') }}'">
+                                <div class="absolute top-0 left-0 bg-yellow-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-br-lg shadow-sm">
+                                    #{{ $index + 1 }}
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-extrabold text-sm text-gray-800 truncate">{{ $populer->nama }}</div>
+                                <div class="text-[11px] text-gray-500 mt-0.5 line-clamp-1">{{ $populer->total_pesanan }} kali dipesan</div>
+                                <div class="font-bold text-[#4151a6] text-xs mt-1">Rp{{ number_format($populer->harga, 0, ',', '.') }}<span class="text-[10px] text-gray-400 font-semibold">/{{ strtoupper($populer->tipe == 'Per Kg' ? 'KG' : 'Stn') }}</span></div>
+                            </div>
+                            <div class="h-8 w-8 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center shadow-sm shrink-0">
+                                <span class="material-icons text-[16px]">local_fire_department</span>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    @else
+                    <div class="text-center py-8 text-gray-400 text-sm flex-1 flex flex-col justify-center">
+                        <span class="material-icons text-4xl mb-2 opacity-50">data_usage</span>
+                        <div>Belum ada data pesanan.</div>
+                    </div>
+                    @endif
                 </div>
-                @endif
             </div>
 
         </div>

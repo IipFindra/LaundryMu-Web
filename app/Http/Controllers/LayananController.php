@@ -29,13 +29,40 @@ class LayananController extends Controller
         // Ambil 5 aktivitas terbaru berdasarkan updated_at
         $aktivitas = Layanan::orderBy('updated_at', 'desc')->take(5)->get();
 
+        // Ambil 3 layanan terpopuler berdasarkan data pesanan
+        $kategoriPopuler = \App\Models\Pesanan::selectRaw('kategori, count(*) as total')
+            ->groupBy('kategori')
+            ->orderByDesc('total')
+            ->take(3)
+            ->get();
+            
+        $layananPopuler = collect();
+        foreach ($kategoriPopuler as $kp) {
+            $layanan = Layanan::where('nama', $kp->kategori)->first();
+            if ($layanan) {
+                $layanan->total_pesanan = $kp->total;
+                $layananPopuler->push($layanan);
+            }
+        }
+
+        // Fallback jika kurang dari 3
+        if ($layananPopuler->count() < 3) {
+             $existingNames = $layananPopuler->pluck('nama')->toArray();
+             $tambah = Layanan::whereNotIn('nama', $existingNames)->take(3 - $layananPopuler->count())->get();
+             foreach ($tambah as $t) {
+                 $t->total_pesanan = 0;
+                 $layananPopuler->push($t);
+             }
+        }
+
         return view('layanan', compact(
             'layanans',
             'totalLayanan',
             'layananAktif',
             'rataHarga',
             'layananPremium',
-            'aktivitas'
+            'aktivitas',
+            'layananPopuler'
         ));
     }
 

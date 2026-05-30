@@ -54,6 +54,14 @@ class LaundryController extends Controller
                 'id_admin'     => null,
             ]);
 
+            // ✅ Insert notifikasi untuk admin
+            \App\Models\Notification::create([
+                'judul' => 'Pesanan Baru',
+                'isi' => 'Pesanan baru ' . $pesanan->kategori . ' dari ' . $pesanan->nama_pelanggan,
+                'status_baca' => false,
+                'id_pesanan' => $pesanan->id_pesanans,
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Pesanan berhasil dibuat',

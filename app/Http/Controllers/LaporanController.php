@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class LaporanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $hariIni = Carbon::today();
         $bulanIni = Carbon::now()->month;
@@ -53,6 +53,19 @@ class LaporanController extends Controller
         $permintaanTertinggi = $layananPopulerRecord ? $layananPopulerRecord->total : 0;
         $rasioPesanan = $totalTransaksi > 0 ? round(($permintaanTertinggi / $totalTransaksi) * 100) : 0;
 
+        // Range (7 hari atau 30 hari)
+        $range = $request->input('range', 7);
+
+        // Data Chart Pendapatan X Hari Terakhir
+        $chartLabels = [];
+        $chartData = [];
+        for ($i = $range - 1; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i);
+            $chartLabels[] = $date->locale('id')->isoFormat('D MMM');
+            $revenue = Pesanan::whereDate('created_at', $date)->sum('harga');
+            $chartData[] = (int) $revenue;
+        }
+
         return view('laporan', compact(
             'pesananHariIni',
             'pesananSelesai',
@@ -65,7 +78,51 @@ class LaporanController extends Controller
             'rataRataTransaksi',
             'layananPopuler',
             'permintaanTertinggi',
-            'rasioPesanan'
+            'rasioPesanan',
+            'chartLabels',
+            'chartData',
+            'range'
         ));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $hariIni = Carbon::today();
+        $bulanIni = Carbon::now()->month;
+        $tahunIni = Carbon::now()->year;
+
+        $pendapatanHariIni = Pesanan::whereDate('created_at', $hariIni)->sum('harga');
+        $pendapatanBulanIni = Pesanan::whereMonth('created_at', $bulanIni)
+                                     ->whereYear('created_at', $tahunIni)
+                                     ->sum('harga');
+        
+        $totalPendapatan = Pesanan::sum('harga');
+        $totalTransaksi = Pesanan::count();
+        $rataRataTransaksi = $totalTransaksi > 0 ? $totalPendapatan / $totalTransaksi : 0;
+
+        $range = $request->input('range', 7);
+
+        // Data X Hari Terakhir untuk laporan PDF
+        $laporanHarian = [];
+        for ($i = $range - 1; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i);
+            $revenue = Pesanan::whereDate('created_at', $date)->sum('harga');
+            $laporanHarian[] = [
+                'tanggal' => $date->locale('id')->isoFormat('dddd, D MMMM YYYY'),
+                'pendapatan' => $revenue
+            ];
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.laporan-pendapatan', compact(
+            'pendapatanHariIni',
+            'pendapatanBulanIni',
+            'totalPendapatan',
+            'rataRataTransaksi',
+            'totalTransaksi',
+            'laporanHarian',
+            'range'
+        ));
+
+        return $pdf->download('Laporan_Pendapatan_LaundryMu_' . date('Y-m-d') . '.pdf');
     }
 }
