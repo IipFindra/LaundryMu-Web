@@ -150,17 +150,19 @@ class LaundryController extends Controller
             return response()->json([
                 'success' => true,
                 'data'    => [
-                    'id'           => $pesanan->id_pesanans,
-                    'status'       => $currentStatus,
-                    'current_step' => $currentStep,
-                    'steps'        => $steps,
-                    'history'      => $history->map(fn ($h) => [
+                    'id'             => $pesanan->id_pesanans,
+                    'nomor_pesanan'  => 'INV-' . $pesanan->tanggal->format('Ymd') . '-' . str_pad($pesanan->id_pesanans, 4, '0', STR_PAD_LEFT),
+                    'status'         => $currentStatus,
+                    'current_step'   => $currentStep,
+                    'steps'          => $steps,
+                    'history'        => $history->map(fn ($h) => [
                         'status'       => $h->status,
                         'keterangan'   => $h->keterangan,
                         'waktu_update' => optional($h->waktu_update)->format('Y-m-d H:i'),
                     ]),
                     'pesanan' => [
                         'id'             => $pesanan->id_pesanans,
+                        'nomor_pesanan'  => 'INV-' . $pesanan->tanggal->format('Ymd') . '-' . str_pad($pesanan->id_pesanans, 4, '0', STR_PAD_LEFT),
                         'kategori'       => $pesanan->kategori,
                         'berat'          => $pesanan->berat,
                         'harga'          => $pesanan->harga,
@@ -199,6 +201,7 @@ class LaundryController extends Controller
                 ->get()
                 ->map(fn ($p) => [
                     'id_pesanans'    => $p->id_pesanans,
+                    'nomor_pesanan'  => 'INV-' . $p->tanggal->format('Ymd') . '-' . str_pad($p->id_pesanans, 4, '0', STR_PAD_LEFT),
                     'tanggal'        => optional($p->tanggal)->format('Y-m-d'),
                     'nama_pelanggan' => $p->nama_pelanggan,
                     'kategori'       => $p->kategori,

@@ -141,10 +141,10 @@
         @endphp
 
         <!-- DETAIL PELANGGAN -->
-        {{-- <div class="detail-item">
-            <span class="label">ID Pesanan</span>
-            <span class="value">{{ $pesanan->id }}</span>
-        </div> --}}
+        <div class="detail-item">
+            <span class="label">No. Pesanan</span>
+            <span class="value">INV-{{ $pesanan->tanggal->format('Ymd') }}-{{ str_pad($pesanan->id_pesanans, 4, '0', STR_PAD_LEFT) }}</span>
+        </div>
         <div class="detail-item">
             <span class="label">Pelanggan</span>
             <span class="value">{{ $pesanan->nama_pelanggan }}</span>

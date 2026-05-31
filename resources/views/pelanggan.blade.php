@@ -40,13 +40,17 @@
         </div>
         <!-- Profile & Logout -->
         <div class="px-6 pb-8">
-            <div class="flex items-center gap-3 bg-[#22306a] rounded-2xl p-4 mb-3 shadow-lg border border-white/5">
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}" class="h-11 w-11 rounded-full border-2 border-white/20 object-cover">
+            <a href="{{ route('profile.admin') }}" class="flex items-center gap-3 bg-[#22306a] rounded-2xl p-4 mb-3 shadow-lg border border-white/5 hover:border-yellow-400/60 hover:bg-[#2a3d88] transition-all duration-200 group">
+                @if(auth()->user()->foto_profile)
+                    <img src="{{ Storage::url(auth()->user()->foto_profile) }}" class="h-11 w-11 rounded-full border-2 border-white/20 object-cover flex-shrink-0">
+                @else
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}" class="h-11 w-11 rounded-full border-2 border-white/20 object-cover flex-shrink-0">
+                @endif
                 <div class="min-w-0 flex-1">
                     <div class="font-bold text-sm leading-tight truncate">{{ auth()->user()->name }}</div>
-                    <div class="text-[10px] text-gray-300 leading-tight truncate mt-0.5">{{ auth()->user()->email }}</div>
+                    <div class="text-[10px] text-yellow-300 font-semibold leading-tight mt-0.5 group-hover:text-yellow-200 transition">Lihat Profil →</div>
                 </div>
-            </div>
+            </a>
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="flex items-center justify-center gap-2 text-sm font-bold bg-white/10 border border-white/10 rounded-2xl px-4 py-3.5 hover:bg-red-500/20 hover:border-red-500/30 transition duration-200 w-full text-white">
@@ -93,32 +97,61 @@
         <!-- TABLE CARD -->
         <div class="bg-white rounded-3xl shadow-lg mx-6 lg:mx-8 xl:mx-12 p-6 mb-8 overflow-x-auto max-w-full">
             @if(count($pelanggans) > 0)
-            <table class="w-full min-w-[800px] text-left">
+            <table class="w-full min-w-[780px] text-left">
                 <thead>
-                    <tr class="text-[#2d3e90] font-bold text-lg border-b-2 border-gray-100">
-                        <th class="py-3 px-2 w-16">Pilih</th>
-                        <th class="py-3 px-2">ID Pelanggan</th>
-                        <th class="py-3 px-2">Nama</th>
-                        <th class="py-3 px-2">No Telepon</th>
-                        <th class="py-3 px-2">Alamat</th>
-                        <th class="py-3 px-2">Bergabung Pada</th>
-                        <th class="py-3 px-2 text-center w-24">Aksi</th>
+                    <tr class="text-[#2d3e90] font-bold text-sm uppercase tracking-wider border-b-2 border-gray-100 bg-slate-50/60">
+                        <th class="py-3 px-3 w-10 rounded-tl-xl">Pilih</th>
+                        <th class="py-3 px-3 w-32">ID Pelanggan</th>
+                        <th class="py-3 px-3">Nama Pelanggan</th>
+                        <th class="py-3 px-3">Kontak</th>
+                        <th class="py-3 px-3">Alamat</th>
+                        <th class="py-3 px-3">Bergabung</th>
+                        <th class="py-3 px-3 text-center w-14 rounded-tr-xl">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="text-gray-700 text-base">
+                <tbody class="text-gray-700 text-sm">
                     @foreach($pelanggans as $pelanggan)
-                    <tr class="border-b hover:bg-gray-50 transition cursor-pointer" onclick="selectPelanggan('{{ $pelanggan->id_pelanggan }}', this)" data-pelanggan-id="{{ $pelanggan->id_pelanggan }}">
-                        <td class="py-3 px-2" onclick="event.stopPropagation();"><input type="checkbox" class="w-4 h-4"></td>
-                        <td class="py-3 px-2">
-                            <span class="bg-[#4151a6]/10 text-[#4151a6] font-bold text-xs px-2 py-1 rounded-full">{{ $pelanggan->id_pelanggan }}</span>
+                    @php
+                        $plgCode  = 'PLG-' . str_pad($pelanggan->id_pelanggan, 3, '0', STR_PAD_LEFT);
+                        $alamat   = $pelanggan->alamat ?? '-';
+                        $alamatShort = mb_strlen($alamat) > 40 ? mb_substr($alamat, 0, 40) . '...' : $alamat;
+                        $telepon  = $pelanggan->no_telepon ?? '-';
+                        $bergabung = $pelanggan->created_at
+                            ? \Carbon\Carbon::parse($pelanggan->created_at)->locale('id')->translatedFormat('d F Y')
+                            : '-';
+                    @endphp
+                    <tr class="border-b border-slate-100 hover:bg-blue-50/50 transition cursor-pointer" onclick="selectPelanggan('{{ $pelanggan->id_pelanggan }}', this)" data-pelanggan-id="{{ $pelanggan->id_pelanggan }}">
+                        <td class="py-3.5 px-3" onclick="event.stopPropagation();">
+                            <input type="checkbox" class="w-4 h-4 accent-[#4151a6]">
                         </td>
-                        <td class="py-3 px-2 font-semibold">{{ $pelanggan->nama_lengkap }}</td>
-                        <td class="py-3 px-2">{{ $pelanggan->no_telepon }}</td>
-                        <td class="py-3 px-2">{{ $pelanggan->alamat }}</td>
-                        <td class="py-3 px-2">{{ $pelanggan->created_at ? $pelanggan->created_at->format('d M Y, H:i') : '-' }}</td>
-                        <td class="py-3 px-2 text-center" onclick="event.stopPropagation();">
-                            <button onclick="openChatFromRow('{{ $pelanggan->id_pelanggan }}', '{{ addslashes($pelanggan->nama_lengkap) }}', event)" class="bg-green-600 hover:bg-green-700 text-white rounded-xl p-2 transition hover:scale-105 active:scale-95 inline-flex items-center justify-center shadow-sm" title="Chat dengan Pelanggan">
-                                <span class="material-icons text-base">chat</span>
+                        {{-- Kolom: ID Pelanggan (kecil dengan badge) --}}
+                        <td class="py-3.5 px-3">
+                            <span class="inline-flex items-center bg-[#4151a6]/10 text-[#4151a6] font-bold text-[10px] px-2 py-0.5 rounded-full tracking-wide">{{ $plgCode }}</span>
+                        </td>
+                        {{-- Kolom: Nama Pelanggan --}}
+                        <td class="py-3.5 px-3 font-semibold text-gray-800 text-sm leading-tight">
+                            {{ $pelanggan->nama_lengkap ?: '-' }}
+                        </td>
+                        {{-- Kolom: Kontak --}}
+                        <td class="py-3.5 px-3 text-gray-600 text-sm font-medium">
+                            {{ $telepon }}
+                        </td>
+                        {{-- Kolom: Alamat (truncated + tooltip) --}}
+                        <td class="py-3.5 px-3 text-gray-500 text-sm" title="{{ $alamat }}">
+                            {{ $alamatShort }}
+                        </td>
+                        {{-- Kolom: Bergabung --}}
+                        <td class="py-3.5 px-3 text-gray-500 text-sm whitespace-nowrap">
+                            {{ $bergabung }}
+                        </td>
+                        {{-- Kolom: Aksi --}}
+                        <td class="py-3.5 px-3 text-center" onclick="event.stopPropagation();">
+                            <button
+                                onclick="openChatFromRow('{{ $pelanggan->id_pelanggan }}', '{{ addslashes($pelanggan->nama_lengkap) }}', event)"
+                                class="h-8 w-8 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl inline-flex items-center justify-center shadow-sm transition hover:scale-105 active:scale-95"
+                                title="Chat dengan {{ $pelanggan->nama_lengkap }}"
+                            >
+                                <span class="material-icons text-[16px]">chat</span>
                             </button>
                         </td>
                     </tr>
@@ -164,25 +197,21 @@ function goToEditPelanggan() {
     }
 }
 
-/* SEARCH */
+/* SEARCH — kolom: 0=Pilih, 1=ID Pelanggan, 2=Nama Pelanggan, 3=Kontak, 4=Alamat, 5=Bergabung */
 function searchPelanggan() {
     let input = document.getElementById("searchPelanggan").value.toLowerCase();
-    let rows = document.querySelectorAll("tbody tr");
+    let rows  = document.querySelectorAll("tbody tr");
 
     rows.forEach(row => {
-        let id      = row.children[1]?.innerText.toLowerCase() ?? '';
-        let nama    = row.children[2]?.innerText.toLowerCase() ?? '';
-        let telepon = row.children[3]?.innerText.toLowerCase() ?? '';
-        let alamat  = row.children[4]?.innerText.toLowerCase() ?? '';
-        let tanggal = row.children[5]?.innerText.toLowerCase() ?? '';
+        let id        = row.children[1]?.innerText.toLowerCase() ?? '';
+        let nama      = row.children[2]?.innerText.toLowerCase() ?? '';
+        let kontak    = row.children[3]?.innerText.toLowerCase() ?? '';
+        let alamat    = row.children[4]?.innerText.toLowerCase() ?? '';
+        let bergabung = row.children[5]?.innerText.toLowerCase() ?? '';
 
-        let data = id + " " + nama + " " + telepon + " " + alamat + " " + tanggal;
-        
-        if (data.includes(input)) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
+        let data = id + ' ' + nama + ' ' + kontak + ' ' + alamat + ' ' + bergabung;
+
+        row.style.display = data.includes(input) ? '' : 'none';
     });
 }
 </script>
@@ -231,6 +260,7 @@ function searchPelanggan() {
 
 <script>
 let chatPollInterval = null;
+let chatCustomerId = null;
 let chatCustomerName = null;
 let currentChatSession = 0; // To track active session and prevent fetch race conditions
 let lastFetchedChatData = ""; // To prevent unnecessary DOM re-renders
@@ -239,12 +269,13 @@ let pendingMessages = 0; // Track in-flight messages to pause polling
 function openChatFromRow(pelangganId, namaLengkap, event) {
     event.preventDefault();
     event.stopPropagation();
-    openChatModal(namaLengkap);
+    openChatModal(pelangganId, namaLengkap);
 }
 
-function openChatModal(customerName) {
+function openChatModal(pelangganId, customerName) {
+    chatCustomerId = pelangganId;
     chatCustomerName = customerName;
-    if (!chatCustomerName) return;
+    if (!chatCustomerId || !chatCustomerName) return;
     
     currentChatSession++; // Increment session to invalidate previous in-flight fetches
     lastFetchedChatData = ""; // Reset cache
@@ -293,10 +324,10 @@ function closeChatModal() {
 }
 
 function loadChatMessages(forceScroll = false) {
-    if (!chatCustomerName) return;
+    if (!chatCustomerId) return;
     if (pendingMessages > 0) return; // JANGAN timpa UI kalau sedang mengirim pesan!
 
-    const url = `/api/chat/${encodeURIComponent(chatCustomerName)}`;
+    const url = `/api/admin/chat/${encodeURIComponent(chatCustomerId)}`;
     const session = currentChatSession;
 
     fetch(url)
@@ -375,7 +406,7 @@ function loadChatMessages(forceScroll = false) {
 
 function sendChatMessage(event) {
     event.preventDefault();
-    if (!chatCustomerName) return;
+    if (!chatCustomerId || !chatCustomerName) return;
 
     const input = document.getElementById("chatInput");
     const msgText = input.value.trim();
@@ -410,51 +441,84 @@ function sendChatMessage(event) {
 
     pendingMessages++; // Kunci interval polling
 
-    fetch('/api/chat/send', {
+    fetch('/api/admin/chat/send', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': csrfToken
         },
         body: JSON.stringify({
-            customer_name: chatCustomerName,
+            id_pelanggan: chatCustomerId,
             message: msgText
         })
     }).then(res => res.json()).then(res => {
         pendingMessages--; // Buka kunci polling
-        if (session === currentChatSession && res.success) {
-            let tickColor = res.message.dibaca ? 'text-blue-400' : 'text-slate-400';
-            // Ubah bubble sementara menjadi bubble permanen
-            const tempBubble = document.getElementById(tempId);
-            if (tempBubble) {
-                tempBubble.classList.remove("opacity-70");
-                tempBubble.outerHTML = `
-                    <div class="flex flex-col items-end self-end max-w-[85%] group relative mb-1">
-                        <div class="flex items-center gap-2">
-                            <div class="hidden group-hover:flex items-center gap-1 bg-white shadow-sm rounded-lg border border-slate-100 px-1 py-0.5 transition-all">
-                                <button onclick="editChatMessage(${res.message.id}, '${escapeHtml(res.message.message).replace(/'/g, "\\'")}')" class="text-blue-500 hover:bg-blue-50 rounded p-1" title="Edit">
-                                    <span class="material-icons text-[14px]">edit</span>
-                                </button>
-                                <button onclick="deleteChatMessage(${res.message.id})" class="text-red-500 hover:bg-red-50 rounded p-1" title="Hapus">
-                                    <span class="material-icons text-[14px]">delete</span>
-                                </button>
+        if (session === currentChatSession) {
+            if (res.success) {
+                let tickColor = res.message.dibaca ? 'text-blue-400' : 'text-slate-400';
+                // Ubah bubble sementara menjadi bubble permanen
+                const tempBubble = document.getElementById(tempId);
+                if (tempBubble) {
+                    tempBubble.classList.remove("opacity-70");
+                    tempBubble.outerHTML = `
+                        <div class="flex flex-col items-end self-end max-w-[85%] group relative mb-1">
+                            <div class="flex items-center gap-2">
+                                <div class="hidden group-hover:flex items-center gap-1 bg-white shadow-sm rounded-lg border border-slate-100 px-1 py-0.5 transition-all">
+                                    <button onclick="editChatMessage(${res.message.id}, '${escapeHtml(res.message.message).replace(/'/g, "\\'")}')" class="text-blue-500 hover:bg-blue-50 rounded p-1" title="Edit">
+                                        <span class="material-icons text-[14px]">edit</span>
+                                    </button>
+                                    <button onclick="deleteChatMessage(${res.message.id})" class="text-red-500 hover:bg-red-50 rounded p-1" title="Hapus">
+                                        <span class="material-icons text-[14px]">delete</span>
+                                    </button>
+                                </div>
+                                <div class="bg-[#4151a6] text-white px-4 py-2.5 rounded-2xl rounded-tr-none text-sm shadow-sm leading-relaxed break-words" id="msg-text-${res.message.id}">
+                                    ${escapeHtml(res.message.message)}
+                                </div>
                             </div>
-                            <div class="bg-[#4151a6] text-white px-4 py-2.5 rounded-2xl rounded-tr-none text-sm shadow-sm leading-relaxed break-words" id="msg-text-${res.message.id}">
-                                ${escapeHtml(res.message.message)}
+                            <div class="flex items-center gap-1 mt-1 mr-1">
+                                <span class="text-[9px] text-slate-400">${res.message.time}</span>
+                                <span class="material-icons text-[12px] ${tickColor}">done_all</span>
                             </div>
                         </div>
-                        <div class="flex items-center gap-1 mt-1 mr-1">
-                            <span class="text-[9px] text-slate-400">${res.message.time}</span>
-                            <span class="material-icons text-[12px] ${tickColor}">done_all</span>
+                    `;
+                }
+                lastFetchedChatData = ""; // Agar polling berikutnya sinkronisasi
+            } else {
+                // Tampilkan status gagal kirim jika res.success false
+                const tempBubble = document.getElementById(tempId);
+                if (tempBubble) {
+                    tempBubble.outerHTML = `
+                        <div class="flex flex-col items-end self-end max-w-[85%] mb-1">
+                            <div class="bg-red-100 text-red-700 px-4 py-2.5 rounded-2xl rounded-tr-none text-sm shadow-sm leading-relaxed break-words">
+                                ${escapeHtml(msgText)}
+                            </div>
+                            <div class="flex items-center gap-1 mt-1 mr-1 text-red-500">
+                                <span class="text-[9px]">Gagal mengirim: ${escapeHtml(res.error || 'Server error')}</span>
+                                <span class="material-icons text-[10px]">error_outline</span>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
             }
-            lastFetchedChatData = ""; // Agar polling berikutnya sinkronisasi
         }
     }).catch(err => {
         pendingMessages--;
         console.error('Gagal mengirim pesan:', err);
+        // Tampilkan status gagal kirim jika fetch error / JSON parsing error
+        const tempBubble = document.getElementById(tempId);
+        if (tempBubble) {
+            tempBubble.outerHTML = `
+                <div class="flex flex-col items-end self-end max-w-[85%] mb-1">
+                    <div class="bg-red-100 text-red-700 px-4 py-2.5 rounded-2xl rounded-tr-none text-sm shadow-sm leading-relaxed break-words">
+                        ${escapeHtml(msgText)}
+                    </div>
+                    <div class="flex items-center gap-1 mt-1 mr-1 text-red-500">
+                        <span class="text-[9px]">Gagal mengirim (Network Error)</span>
+                        <span class="material-icons text-[10px]">error_outline</span>
+                    </div>
+                </div>
+            `;
+        }
     });
 }
 
@@ -463,7 +527,7 @@ function deleteChatMessage(id) {
     
     pendingMessages++; // Kunci UI agar tidak kedap-kedip saat menghapus
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
-    fetch(`/api/chat/${id}`, {
+    fetch(`/api/admin/chat/${id}`, {
         method: 'DELETE',
         headers: {
             'X-CSRF-TOKEN': csrfToken
@@ -483,7 +547,7 @@ function editChatMessage(id, oldText) {
 
     pendingMessages++;
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
-    fetch(`/api/chat/${id}`, {
+    fetch(`/api/admin/chat/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',

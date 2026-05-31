@@ -6,6 +6,8 @@ use App\Http\Controllers\PesananController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LayananController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\ProfileAdminController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -89,9 +91,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/api/messages/read', [DashboardController::class, 'markMessageRead'])->name('api.message.read');
     Route::get('/api/notifications', [DashboardController::class, 'getNotifications'])->name('api.notifications');
     Route::get('/api/messages', [DashboardController::class, 'getMessages'])->name('api.messages');
-    Route::get('/api/chat/{customerName}', [DashboardController::class, 'getChatHistory'])->name('api.chat.history');
-    Route::post('/api/chat/send', [DashboardController::class, 'sendChatMessage'])->name('api.chat.send');
-    Route::put('/api/chat/{id}', [DashboardController::class, 'updateChatMessage'])->name('api.chat.update');
-    Route::delete('/api/chat/{id}', [DashboardController::class, 'deleteChatMessage'])->name('api.chat.delete');
+    Route::get('/api/admin/chat/{id_pelanggan}', [DashboardController::class, 'getChatHistory'])->name('api.admin.chat.history');
+    Route::post('/api/admin/chat/send', [DashboardController::class, 'sendChatMessage'])->name('api.admin.chat.send');
+    Route::put('/api/admin/chat/{id}', [DashboardController::class, 'updateChatMessage'])->name('api.admin.chat.update');
+    Route::delete('/api/admin/chat/{id}', [DashboardController::class, 'deleteChatMessage'])->name('api.admin.chat.delete');
+
+    // ─── Profil Admin ─────────────────────────────────────────────────
+    Route::get('/profile-admin',               [ProfileAdminController::class, 'index'])         ->name('profile.admin');
+    Route::post('/profile-admin/update',       [ProfileAdminController::class, 'update'])        ->name('profile.admin.update');
+    Route::post('/profile-admin/update-password', [ProfileAdminController::class, 'updatePassword'])->name('profile.admin.update.password');
+    Route::post('/profile-admin/update-photo', [ProfileAdminController::class, 'updatePhoto'])   ->name('profile.admin.update.photo');
 
 });

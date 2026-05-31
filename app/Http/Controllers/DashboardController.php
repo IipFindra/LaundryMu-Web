@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Pesanan;
 use App\Models\Notification;
 use App\Models\Message;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -137,38 +138,41 @@ class DashboardController extends Controller
      */
     public function getMessages()
     {
-        $pesan = Message::orderBy('created_at', 'desc')->take(10)->get();
-        $unread = Message::where('dibaca', false)->count();
+        // Hanya tampilkan pesan DARI PELANGGAN di inbox admin
+        $pesan = Message::where('tipe', 'chat_pelanggan')
+                    ->orderBy('created_at', 'desc')
+                    ->take(10)
+                    ->get();
+        $unread = Message::where('tipe', 'chat_pelanggan')
+                    ->where('dibaca', false)
+                    ->count();
 
         return response()->json(['pesan' => $pesan, 'unread' => $unread]);
     }
 
     /**
-     * Get chat history with a customer
+     * Get chat history with a customer (diakses oleh web admin)
      */
-    public function getChatHistory($customerName)
+    public function getChatHistory($id_pelanggan)
     {
-        $messages = Message::where('tipe', 'chat_pelanggan')
-            ->where(function($query) use ($customerName) {
-                $query->where('nama_pengirim', $customerName)
-                      ->orWhere('subjek', $customerName);
-            })
+        $messages = Message::where('id_pelanggan', $id_pelanggan)
+            ->whereIn('tipe', ['chat_pelanggan', 'chat_admin'])
             ->orderBy('created_at', 'asc')
             ->get()
             ->map(function($msg) {
                 return [
-                    'id' => $msg->id,
-                    'sender' => $msg->nama_pengirim,
-                    'message' => $msg->pesan,
-                    'time' => $msg->created_at->locale('id')->diffForHumans(),
-                    'is_admin' => $msg->nama_pengirim === 'Admin',
-                    'dibaca' => (bool) $msg->dibaca,
+                    'id'       => $msg->id,
+                    'sender'   => $msg->nama_pengirim,
+                    'message'  => $msg->pesan,
+                    'time'     => $msg->created_at->locale('id')->diffForHumans(),
+                    'is_admin' => $msg->tipe === 'chat_admin',
+                    'dibaca'   => (bool) $msg->dibaca,
                 ];
             });
 
-        // Mark unread messages from this customer as read
-        Message::where('tipe', 'chat_pelanggan')
-            ->where('nama_pengirim', $customerName)
+        // Tandai pesan DARI PELANGGAN sebagai terbaca saat admin buka chat
+        Message::where('id_pelanggan', $id_pelanggan)
+            ->where('tipe', 'chat_pelanggan')
             ->where('dibaca', false)
             ->update(['dibaca' => true]);
 
@@ -176,34 +180,58 @@ class DashboardController extends Controller
     }
 
     /**
-     * Send a chat message to a customer
+     * Send a chat message to a customer (diakses oleh web admin)
      */
     public function sendChatMessage(Request $request)
     {
-        $request->validate([
-            'customer_name' => 'required|string',
-            'message' => 'required|string',
-        ]);
+        try {
+            Log::info('ADMIN CHAT REQUEST', $request->all());
 
-        $msgAdmin = Message::create([
-            'nama_pengirim' => 'Admin',
-            'subjek' => $request->customer_name,
-            'pesan' => $request->message,
-            'tipe' => 'chat_pelanggan',
-            'dibaca' => false,
-        ]);
+            $request->validate([
+                'id_pelanggan' => 'required',
+                'message'      => 'required|string',
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => [
+            Log::info('ADMIN CHAT CREATE', [
+                'id_pelanggan' => $request->id_pelanggan,
+                'message' => $request->message,
+            ]);
+
+            $msgAdmin = Message::create([
+                'id_pelanggan'  => $request->id_pelanggan,
+                'id_admin'      => auth()->id() ?? 1,
+                'nama_pengirim' => 'Admin',
+                'subjek'        => 'Balasan Admin',
+                'pesan'         => $request->message,
+                'tipe'          => 'chat_admin',
+                'dibaca'        => false,
+            ]);
+
+            Log::info('ADMIN CHAT SUCCESS', [
                 'id' => $msgAdmin->id,
-                'sender' => 'Admin',
-                'message' => $msgAdmin->pesan,
-                'time' => 'Baru saja',
-                'is_admin' => true,
-                'dibaca' => false,
-            ]
-        ]);
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => [
+                    'id'       => $msgAdmin->id,
+                    'sender'   => 'Admin',
+                    'message'  => $msgAdmin->pesan,
+                    'time'     => 'Baru saja',
+                    'is_admin' => true,
+                    'dibaca'   => false,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('ADMIN CHAT ERROR', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

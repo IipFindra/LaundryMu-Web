@@ -10,6 +10,64 @@
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
+
+        /* ═══════════════════════════════════════════════════
+         *  FLOATING LABEL — Email & Password Input
+         * ═══════════════════════════════════════════════════ */
+
+        /* Wrapper relatif agar label bisa diposisikan absolut */
+        .fl-group {
+            position: relative;
+        }
+
+        /* Label yang mengambang */
+        .fl-label {
+            position: absolute;
+            left: 2.85rem;        /* sejajar dengan teks input (setelah ikon) */
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.875rem;  /* 14px — ukuran sama dengan placeholder */
+            font-weight: 500;
+            color: #9ca3af;       /* gray-400 */
+            pointer-events: none;
+            transition:
+                top         0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                transform   0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                font-size   0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                color       0.18s ease,
+                left        0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                background  0.15s ease;
+            white-space: nowrap;
+            line-height: 1;
+        }
+
+        /* State: input difokus ATAU sudah berisi nilai */
+        .fl-group:focus-within .fl-label,
+        .fl-input:not(:placeholder-shown) ~ .fl-label {
+            top: 0;
+            transform: translateY(-50%);
+            font-size: 0.70rem;   /* 11.2px — lebih kecil */
+            color: #3b82f6;       /* blue-500 */
+            left: 0.85rem;        /* kiri, sebelum ikon */
+            background: #fff;
+            padding: 0 4px;
+            border-radius: 2px;
+        }
+
+        /* Saat tidak fokus tapi berisi: warna abu (bukan biru) */
+        .fl-input:not(:placeholder-shown):not(:focus) ~ .fl-label {
+            color: #6b7280;       /* gray-500 */
+        }
+
+        /* Input: hapus placeholder agar tidak bentrok dengan floating label */
+        .fl-input::placeholder {
+            color: transparent;
+        }
+
+        /* Warna ikon saat focus */
+        .fl-group:focus-within .fl-icon {
+            color: #3b82f6;       /* blue-500 */
+        }
     </style>
 </head>
 <body class="bg-slate-900 min-h-screen relative overflow-hidden flex items-center justify-center">
@@ -60,36 +118,52 @@
                     </div>
                 @endif
 
-                <!-- Email Input -->
-                <div class="space-y-1.5">
-                    <label class="text-xs font-bold uppercase tracking-wider text-gray-400 block ml-1">Alamat Email</label>
-                    <div class="relative group">
-                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-300">
+                <!-- Email Input — Floating Label -->
+                <div class="space-y-0">
+                    <div class="fl-group relative">
+                        <!-- Ikon Email -->
+                        <span class="fl-icon absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors duration-300 z-10">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
                         </span>
-                        <input type="email" name="email" value="{{ old('email') }}" placeholder="admin@laundrymu.com" required
-                            class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 outline-none placeholder-gray-400 text-gray-800 font-semibold text-sm">
+                        <!-- Input -->
+                        <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            placeholder=" "
+                            required
+                            class="fl-input w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 outline-none text-gray-800 font-semibold text-sm"
+                        >
+                        <!-- Floating Label -->
+                        <label for="email" class="fl-label">Alamat Email</label>
                     </div>
                 </div>
 
-                <!-- Password Input -->
-                <div class="space-y-1.5">
-                    <div class="flex justify-between items-center px-1">
-                        <label class="text-xs font-bold uppercase tracking-wider text-gray-400 block">Kata Sandi</label>
-                    </div>
-                    <div class="relative group">
-                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-300">
+                <!-- Password Input — Floating Label -->
+                <div class="space-y-0">
+                    <div class="fl-group relative">
+                        <!-- Ikon Password -->
+                        <span class="fl-icon absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 transition-colors duration-300 z-10">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                         </span>
-                        <input id="password" type="password" name="password" placeholder="••••••••" required
-                            class="w-full pl-11 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 outline-none placeholder-gray-400 text-gray-800 font-semibold text-sm">
-                        
+                        <!-- Input -->
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            placeholder=" "
+                            required
+                            class="fl-input w-full pl-11 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 outline-none text-gray-800 font-semibold text-sm"
+                        >
+                        <!-- Floating Label -->
+                        <label for="password" class="fl-label">Kata Sandi</label>
                         <!-- Toggle Show/Hide Button -->
-                        <button type="button" onclick="togglePassword()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors">
+                        <button type="button" onclick="togglePassword()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500 transition-colors z-10">
                             <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.223-3.592M6.228 6.228A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.97 9.97 0 01-4.293 5.226M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 6L3 3"/>
                             </svg>

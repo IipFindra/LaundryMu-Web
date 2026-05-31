@@ -20,6 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // ✅ 2. Aktifkan CORS untuk API & Browser
         $middleware->append(HandleCors::class);
+
+        // ✅ 3. Kecualikan seluruh route API dari CSRF protection (menghindari HTTP 419)
+        $middleware->validateCsrfTokens(except: [
+            'api/*',
+        ]);
     })
 
     ->withExceptions(function (Exceptions $exceptions) {

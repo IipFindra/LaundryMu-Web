@@ -76,7 +76,7 @@
             <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
                 <div class="flex items-center gap-3 mb-6">
                     <h2 class="text-lg font-bold text-[#2d3e90]">Edit Status Pesanan</h2>
-                    <span class="bg-[#4151a6]/10 text-[#4151a6] font-bold text-sm px-3 py-1 rounded-full">{{ $pesanan->id_pesanans }}</span>
+                    <span class="bg-[#4151a6]/10 text-[#4151a6] font-bold text-sm px-3 py-1 rounded-full">INV-{{ $pesanan->tanggal->format('Ymd') }}-{{ str_pad($pesanan->id_pesanans, 4, '0', STR_PAD_LEFT) }}</span>
                 </div>
 
                 <div class="grid grid-cols-3 gap-6 mb-6">

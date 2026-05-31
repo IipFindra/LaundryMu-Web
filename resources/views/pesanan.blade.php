@@ -40,13 +40,17 @@
         </div>
         <!-- Profile & Logout -->
         <div class="px-6 pb-8">
-            <div class="flex items-center gap-3 bg-[#22306a] rounded-2xl p-4 mb-3 shadow-lg border border-white/5">
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}" class="h-11 w-11 rounded-full border-2 border-white/20 object-cover">
+            <a href="{{ route('profile.admin') }}" class="flex items-center gap-3 bg-[#22306a] rounded-2xl p-4 mb-3 shadow-lg border border-white/5 hover:border-yellow-400/60 hover:bg-[#2a3d88] transition-all duration-200 group">
+                @if(auth()->user()->foto_profile)
+                    <img src="{{ Storage::url(auth()->user()->foto_profile) }}" class="h-11 w-11 rounded-full border-2 border-white/20 object-cover flex-shrink-0">
+                @else
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}" class="h-11 w-11 rounded-full border-2 border-white/20 object-cover flex-shrink-0">
+                @endif
                 <div class="min-w-0 flex-1">
                     <div class="font-bold text-sm leading-tight truncate">{{ auth()->user()->name }}</div>
-                    <div class="text-[10px] text-gray-300 leading-tight truncate mt-0.5">{{ auth()->user()->email }}</div>
+                    <div class="text-[10px] text-yellow-300 font-semibold leading-tight mt-0.5 group-hover:text-yellow-200 transition">Lihat Profil →</div>
                 </div>
-            </div>
+            </a>
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="flex items-center justify-center gap-2 text-sm font-bold bg-white/10 border border-white/10 rounded-2xl px-4 py-3.5 hover:bg-red-500/20 hover:border-red-500/30 transition duration-200 w-full text-white">
@@ -136,7 +140,7 @@
                         data-pesanan-id="{{ $pesanan->id_pesanans }}"
                         data-id="{{ $pesanan->id_pesanans }}">
                         <td class="py-3 px-2"><input type="checkbox" class="w-4 h-4"></td>
-                        <td class="py-3 px-2 font-bold text-[#4151a6]">{{ $pesanan->id_pesanans }}</td>
+                        <td class="py-3 px-2 font-bold text-[#4151a6]">INV-{{ $pesanan->tanggal->format('Ymd') }}-{{ str_pad($pesanan->id_pesanans, 4, '0', STR_PAD_LEFT) }}</td>
                         <td class="py-3 px-2">{{ $pesanan->tanggal->format('Y-m-d') }}</td>
                         <td class="py-3 px-2 font-semibold">{{ $pesanan->nama_pelanggan }}</td>
                         <td class="py-3 px-2">{{ $pesanan->kategori }}</td>
@@ -269,7 +273,7 @@ function openStatusModal() {
     // Set action form
     const actionUrl = "{{ route('pesanan.update.status', ['id' => ':id']) }}".replace(':id', selectedPesananId);
     document.getElementById('statusForm').action = actionUrl;
-    document.getElementById('modalPesananInfo').innerText = 'Pesanan ' + selectedPesananId;
+    document.getElementById('modalPesananInfo').innerText = 'ID #' + selectedPesananId;
 
     // Reset radio pilihan
     document.querySelectorAll('#statusForm input[name="status"]').forEach(r => r.checked = false);
