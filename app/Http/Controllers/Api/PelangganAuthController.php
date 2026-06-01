@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Pelanggan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PelangganAuthController extends Controller
 {
@@ -50,6 +51,8 @@ class PelangganAuthController extends Controller
             'nama'         => $pelanggan->nama_lengkap,
             'telepon'      => $pelanggan->no_telepon,
             'alamat'       => $pelanggan->alamat,
+            'foto_profile' => $pelanggan->foto_profile,
+            'foto_profile_url' => $pelanggan->foto_profile ? asset('storage/' . $pelanggan->foto_profile) : null,
 
             'data' => $pelanggan
         ]);
@@ -90,24 +93,27 @@ class PelangganAuthController extends Controller
             'nama'         => $pelanggan->nama_lengkap,
             'telepon'      => $pelanggan->no_telepon,
             'alamat'       => $pelanggan->alamat,
+            'foto_profile' => $pelanggan->foto_profile,
+            'foto_profile_url' => $pelanggan->foto_profile ? asset('storage/' . $pelanggan->foto_profile) : null,
 
             'data' => $pelanggan
         ]);
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // UNTUK EDIT NAMA DARI FLUTTER
+    // UNTUK EDIT PROFIL DARI FLUTTER
     // ═══════════════════════════════════════════════════════════════
 
-    public function updateNama(Request $request)
+    public function updateProfil(Request $request)
     {
         $request->validate([
             'user_id' => 'required|string',
-            'nama'    => 'required|string|min:2|max:100',
+            'nama'    => 'nullable|string|min:2|max:100',
+            'alamat'  => 'nullable|string',
+            'foto_profile' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         $userId = $request->input('user_id');
-        $nama   = $request->input('nama');
 
         // Cari berdasarkan primary key "id_pelanggan"
         $pelanggan = Pelanggan::where('id_pelanggan', $userId)->first();
@@ -119,17 +125,31 @@ class PelangganAuthController extends Controller
             ], 404);
         }
 
-        // Update nama
-        $pelanggan->nama_lengkap = $nama;
+        // Update nama dan alamat jika ada
+        if ($request->filled('nama')) {
+            $pelanggan->nama_lengkap = $request->input('nama');
+        }
+        if ($request->filled('alamat')) {
+            $pelanggan->alamat = $request->input('alamat');
+        }
+
+        // Update foto jika ada
+        if ($request->hasFile('foto_profile')) {
+            // Hapus foto lama jika ada
+            if ($pelanggan->foto_profile && Storage::disk('public')->exists($pelanggan->foto_profile)) {
+                Storage::disk('public')->delete($pelanggan->foto_profile);
+            }
+            // Simpan foto baru
+            $pelanggan->foto_profile = $request->file('foto_profile')->store('profile-photos', 'public');
+        }
+
         $pelanggan->save();
 
         return response()->json([
             'success' => true,
-            'message' => 'Nama berhasil diubah',
-            'data' => [
-                'id'   => $pelanggan->id_pelanggan,
-                'nama' => $pelanggan->nama_lengkap,
-            ]
+            'message' => 'Profil berhasil diperbarui',
+            'data' => $pelanggan,
+            'foto_profile_url' => $pelanggan->foto_profile ? asset('storage/' . $pelanggan->foto_profile) : null,
         ]);
     }
 }

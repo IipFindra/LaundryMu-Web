@@ -17,7 +17,7 @@ Route::post('login-mobile', [PelangganAuthController::class, 'loginMobile']);
 Route::post('complete-profile', [PelangganAuthController::class, 'completeProfile']);
 
 // ─── EDIT PROFILE MOBILE FLUTTER ───
-Route::post('update-nama', [PelangganAuthController::class, 'updateNama']);
+Route::post('update-profil', [PelangganAuthController::class, 'updateProfil']);
 
 // ─── MOBILE API ROUTES (stateless, no auth middleware) ───
 Route::get('layanans', [LayananApiController::class, 'index']);
