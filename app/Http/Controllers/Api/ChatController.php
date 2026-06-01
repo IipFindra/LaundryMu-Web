@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use App\Models\Message;
 
 class ChatController extends Controller
 {
@@ -35,11 +35,11 @@ class ChatController extends Controller
         }
 
         try {
-            $messages = DB::table('messages')
-                ->where('id_pelanggan', $id_pelanggan)
+            // Menggunakan Eloquent Message agar terfilter SoftDeletes secara otomatis
+            $messages = Message::where('id_pelanggan', $id_pelanggan)
                 ->whereIn('tipe', ['chat_pelanggan', 'chat_admin'])
                 ->orderBy('created_at', 'asc')
-                ->get(['id', 'pesan', 'tipe', 'nama_pengirim', 'dibaca', 'created_at'])
+                ->get()
                 ->map(function ($msg) {
                     return [
                         'id'            => $msg->id,
@@ -48,7 +48,8 @@ class ChatController extends Controller
                         'is_admin'      => $msg->tipe === 'chat_admin',
                         'nama_pengirim' => $msg->nama_pengirim,
                         'dibaca'        => (bool) $msg->dibaca,
-                        'created_at'    => $msg->created_at,
+                        'is_edited'     => $msg->updated_at->gt($msg->created_at),
+                        'created_at'    => $msg->created_at->toIso8601String(),
                     ];
                 });
 
@@ -81,7 +82,6 @@ class ChatController extends Controller
      */
     public function sendMessage(Request $request)
     {
-        // ── LOG: catat seluruh request yang masuk beserta middleware yang dilalui ──
         $route = $request->route();
         $middlewares = $route ? $route->gatherMiddleware() : [];
 
@@ -94,7 +94,6 @@ class ChatController extends Controller
         ]);
 
         try {
-            // ── VALIDASI — dikembalikan sebagai JSON, bukan redirect HTML ──
             $validated = $request->validate([
                 'id_pelanggan'  => 'required|string',
                 'nama_pengirim' => 'required|string',
@@ -103,8 +102,8 @@ class ChatController extends Controller
 
             Log::info('CHAT SEND VALIDATED', $validated);
 
-            // ── INSERT ──
-            $insertData = [
+            // Menggunakan Eloquent Message
+            $msg = Message::create([
                 'id_pelanggan'     => $validated['id_pelanggan'],
                 'nama_pengirim'    => $validated['nama_pengirim'],
                 'email_pengirim'   => '',
@@ -113,15 +112,10 @@ class ChatController extends Controller
                 'pesan'            => $validated['pesan'],
                 'tipe'             => 'chat_pelanggan',
                 'dibaca'           => false,
-                'created_at'       => now(),
-                'updated_at'       => now(),
-            ];
-
-            Log::info('CHAT SEND INSERT DATA', $insertData);
-
-            DB::table('messages')->insert($insertData);
+            ]);
 
             Log::info('CHAT SEND SUCCESS', [
+                'id'           => $msg->id,
                 'id_pelanggan' => $validated['id_pelanggan'],
                 'nama'         => $validated['nama_pengirim'],
             ]);
@@ -132,7 +126,6 @@ class ChatController extends Controller
             ]);
 
         } catch (ValidationException $e) {
-            // Validasi gagal → kembalikan JSON bukan 302 redirect
             Log::warning('CHAT SEND VALIDATION FAILED', [
                 'errors' => $e->errors(),
                 'input'  => $request->all(),
@@ -155,6 +148,79 @@ class ChatController extends Controller
                 'success' => false,
                 'message' => 'Gagal mengirim pesan',
                 'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * PUT /api/chat/update/{id}
+     * Edit pesan milik pelanggan sendiri
+     */
+    public function updateMessage(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'message' => 'required|string',
+            ]);
+
+            $msg = Message::findOrFail($id);
+
+            if ($msg->tipe !== 'chat_pelanggan') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hanya pelanggan yang dapat mengedit pesan ini.'
+                ], 403);
+            }
+
+            if ($msg->created_at->diffInMinutes(now()) > 15) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Batas waktu edit pesan (15 menit) telah terlampaui.'
+                ], 403);
+            }
+
+            $msg->update(['pesan' => $validated['message']]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesan berhasil diupdate'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengedit pesan',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * DELETE /api/chat/delete/{id}
+     * Hapus (soft delete) pesan milik pelanggan sendiri
+     */
+    public function deleteMessage($id)
+    {
+        try {
+            $msg = Message::findOrFail($id);
+
+            if ($msg->tipe !== 'chat_pelanggan') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hanya pelanggan yang dapat menghapus pesan ini.'
+                ], 403);
+            }
+
+            $msg->delete(); // Soft delete
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesan berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus pesan',
+                'error'   => $e->getMessage()
             ], 500);
         }
     }

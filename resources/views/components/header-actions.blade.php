@@ -2,8 +2,20 @@
 @php
     $headerNotifikasi = \App\Models\Notification::orderBy('created_at', 'desc')->take(10)->get();
     $headerUnreadNotif = \App\Models\Notification::where('dibaca', false)->count();
-    $headerPesan = \App\Models\Message::orderBy('created_at', 'desc')->take(10)->get();
-    $headerUnreadPesan = \App\Models\Message::where('dibaca', false)->count();
+    
+    // Ambil percakapan terakhir dari masing-masing pelanggan (tipe chat_pelanggan)
+    $headerPesan = \App\Models\Message::where('tipe', 'chat_pelanggan')
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->unique(function ($msg) {
+            return $msg->id_pelanggan ?: $msg->nama_pengirim;
+        })
+        ->take(10);
+    
+    // Hitung pesan pelanggan yang belum dibaca
+    $headerUnreadPesan = \App\Models\Message::where('tipe', 'chat_pelanggan')
+        ->where('dibaca', false)
+        ->count();
 @endphp
 
 <div class="flex items-center gap-2 relative">
@@ -54,17 +66,25 @@
             </div>
             <div class="max-h-80 overflow-y-auto custom-scrollbar" id="msgList">
                 @forelse($headerPesan as $m)
-                <div class="flex items-start gap-3 px-4 py-3 hover:bg-[#f8faff] transition cursor-pointer border-b border-gray-50 {{ $m->dibaca ? 'opacity-60' : '' }}" onclick="markMsgRead({{ $m->id }})">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode($m->nama_pengirim) }}&size=36&background=eaf4fb&color=3e51b5" class="h-9 w-9 rounded-full flex-shrink-0">
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between">
-                            <span class="font-semibold text-xs text-gray-800 truncate">{{ $m->nama_pengirim }}</span>
-                            <span class="text-[10px] text-gray-400 flex-shrink-0 ml-2">{{ $m->created_at->diffForHumans() }}</span>
-                        </div>
-                        <div class="text-xs text-gray-700 font-medium truncate">{{ $m->subjek }}</div>
-                        <div class="text-xs text-gray-400 truncate">{{ Str::limit($m->pesan, 50) }}</div>
+                <div class="flex items-start gap-3 px-4 py-3.5 border-b border-slate-100 transition duration-200 cursor-pointer {{ !$m->dibaca ? 'bg-[#f4f7ff] hover:bg-[#e8efff]' : 'bg-white hover:bg-slate-50 opacity-75' }}" onclick="clickMsgNotif({{ $m->id }}, '{{ $m->id_pelanggan }}', '{{ addslashes($m->nama_pengirim) }}')">
+                    <!-- Avatar -->
+                    <div class="h-10 w-10 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-xs bg-indigo-50 text-[#4151a6] border border-indigo-100 shadow-sm">
+                        {{ strtoupper(substr($m->nama_pengirim, 0, 2)) }}
                     </div>
-                    @if(!$m->dibaca)<div class="h-2 w-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></div>@endif
+                    <!-- Message Content -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2 mb-0.5">
+                            <span class="font-bold text-xs text-[#2d3e90] truncate">{{ $m->nama_pengirim }}</span>
+                            <span class="text-[9px] text-slate-400 flex-shrink-0">{{ $m->created_at->diffForHumans() }}</span>
+                        </div>
+                        <div class="text-xs text-slate-600 truncate {{ !$m->dibaca ? 'font-semibold text-slate-800' : '' }}">
+                            {{ Str::limit($m->pesan, 65) }}
+                        </div>
+                    </div>
+                    <!-- Unread Badge Dot -->
+                    @if(!$m->dibaca)
+                        <div class="h-2 w-2 bg-emerald-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                    @endif
                 </div>
                 @empty
                 <div class="px-4 py-8 text-center text-gray-400 text-sm">Belum ada pesan</div>
@@ -115,9 +135,19 @@ function markAllNotifRead() {
     fetch('/api/notifications/read', {method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':csrfToken},body:JSON.stringify({})})
     .then(r=>r.json()).then(()=>location.reload());
 }
-function markMsgRead(id) {
-    fetch('/api/messages/read', {method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':csrfToken},body:JSON.stringify({id:id})})
-    .then(r=>r.json()).then(()=>location.reload());
+function clickMsgNotif(msgId, pelangganId, namaPelanggan) {
+    fetch('/api/messages/read', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify({ id: msgId })
+    })
+    .then(r => r.json())
+    .then(() => {
+        window.location.href = `/pelanggan?chat_id_pelanggan=${encodeURIComponent(pelangganId)}&chat_nama_pelanggan=${encodeURIComponent(namaPelanggan)}`;
+    });
 }
 function markAllMsgRead() {
     fetch('/api/messages/read', {method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':csrfToken},body:JSON.stringify({})})

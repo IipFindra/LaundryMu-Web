@@ -229,7 +229,7 @@ function searchPelanggan() {
                 <div>
                     <h3 class="font-bold text-base leading-tight" id="chatTitle">Chat Pelanggan</h3>
                     <div class="flex items-center gap-1.5 mt-0.5">
-                        <span class="h-2 w-2 rounded-full bg-green-400 inline-block animate-pulse"></span>
+                        <span class="h-2 w-2 rounded-full bg-green-400 inline-block"></span>
                         <span class="text-[10px] text-white/80">Online</span>
                     </div>
                 </div>
@@ -241,7 +241,6 @@ function searchPelanggan() {
         
         <!-- Messages Container -->
         <div class="flex-1 p-6 overflow-y-auto bg-slate-50 space-y-4 custom-scrollbar flex flex-col" id="chatMessages">
-            <!-- Messages will be rendered dynamically here -->
             <div class="text-center text-slate-400 py-12 flex flex-col items-center justify-center gap-2">
                 <span class="material-icons text-4xl animate-spin text-[#4151a6]">loop</span>
                 <span class="text-sm">Memuat pesan...</span>
@@ -258,13 +257,73 @@ function searchPelanggan() {
     </div>
 </div>
 
+<!-- DELETE CONFIRMATION MODAL -->
+<div id="deleteConfirmModal" class="fixed inset-0 z-[110] hidden items-center justify-center">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-xs" onclick="closeDeleteModal()"></div>
+    <div class="relative bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl flex flex-col gap-4 transform transition-all scale-95 duration-200">
+        <div class="flex items-center gap-3 text-red-500">
+            <span class="material-icons text-3xl">delete_outline</span>
+            <h3 class="font-bold text-lg text-slate-800">Hapus Pesan</h3>
+        </div>
+        <p class="text-sm text-slate-500 leading-relaxed">
+            Pesan yang dihapus tidak dapat dikembalikan.
+        </p>
+        <div class="flex items-center justify-end gap-3 mt-2">
+            <button onclick="closeDeleteModal()" class="px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-100 font-semibold text-xs transition duration-150">
+                Batal
+            </button>
+            <button id="confirmDeleteBtn" class="px-5 py-2.5 bg-red-500 hover:bg-red-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition duration-150">
+                Hapus
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT MESSAGE MODAL -->
+<div id="editMessageModal" class="fixed inset-0 z-[110] hidden items-center justify-center">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-xs" onclick="closeEditModal()"></div>
+    <div class="relative bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl flex flex-col gap-4 transform transition-all scale-95 duration-200">
+        <div class="flex items-center gap-3 text-blue-500">
+            <span class="material-icons text-3xl font-light">edit</span>
+            <h3 class="font-bold text-lg text-slate-800">Edit Pesan</h3>
+        </div>
+        <div class="flex flex-col gap-1">
+            <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Pesan</label>
+            <textarea id="editMessageTextarea" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-[#4151a6] focus:ring-2 focus:ring-[#4151a6]/10 transition-all duration-200" rows="3" placeholder="Tulis pesan..."></textarea>
+        </div>
+        <div class="flex items-center justify-end gap-3">
+            <button onclick="closeEditModal()" class="px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-100 font-semibold text-xs transition duration-150">
+                Batal
+            </button>
+            <button id="confirmEditBtn" class="px-5 py-2.5 bg-[#4151a6] hover:bg-[#2d3e90] active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition duration-150">
+                Simpan Perubahan
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
 let chatPollInterval = null;
 let chatCustomerId = null;
 let chatCustomerName = null;
-let currentChatSession = 0; // To track active session and prevent fetch race conditions
-let lastFetchedChatData = ""; // To prevent unnecessary DOM re-renders
-let pendingMessages = 0; // Track in-flight messages to pause polling
+let currentChatSession = 0; // Untuk melacak sesi aktif agar mencegah overlap fetch
+let lastFetchedChatData = ""; // Untuk mencegah re-render DOM yang berlebihan
+let pendingMessages = 0; // Melacak pesan terkirim untuk menghentikan sementara polling
+let deleteMessageId = null;
+let editMessageId = null;
+
+// Mengolah parameter query URL saat halaman pertama dimuat
+document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatId = urlParams.get('chat_id_pelanggan');
+    const chatNama = urlParams.get('chat_nama_pelanggan');
+    if (chatId && chatNama) {
+        openChatModal(chatId, chatNama);
+        // Hapus parameter query dari URL setelah chat dibuka demi estetika navigasi
+        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+    }
+});
 
 function openChatFromRow(pelangganId, namaLengkap, event) {
     event.preventDefault();
@@ -277,8 +336,8 @@ function openChatModal(pelangganId, customerName) {
     chatCustomerName = customerName;
     if (!chatCustomerId || !chatCustomerName) return;
     
-    currentChatSession++; // Increment session to invalidate previous in-flight fetches
-    lastFetchedChatData = ""; // Reset cache
+    currentChatSession++; 
+    lastFetchedChatData = ""; 
     pendingMessages = 0;
 
     const modal = document.getElementById("chatModal");
@@ -290,20 +349,15 @@ function openChatModal(pelangganId, customerName) {
     title.innerText = "Chat dengan " + chatCustomerName;
     avatar.innerText = chatCustomerName.substring(0, 2).toUpperCase();
     
-    // Clear input box
     if(input) input.value = "";
-
-    // Empty container instantly (removes the "loading" perceived delay)
     container.innerHTML = "";
 
-    // Show modal
     modal.classList.remove("hidden");
     modal.classList.add("flex");
 
-    // Load messages immediately
-    loadChatMessages();
+    container.setAttribute('data-first-load', 'true');
+    loadChatMessages(true);
 
-    // Poll messages every 3 seconds
     if (chatPollInterval) clearInterval(chatPollInterval);
     chatPollInterval = setInterval(loadChatMessages, 3000);
 }
@@ -318,14 +372,14 @@ function closeChatModal() {
         chatPollInterval = null;
     }
     chatCustomerName = null;
-    currentChatSession++; // Invalidate any pending fetches
+    currentChatSession++; 
     lastFetchedChatData = "";
     pendingMessages = 0;
 }
 
 function loadChatMessages(forceScroll = false) {
     if (!chatCustomerId) return;
-    if (pendingMessages > 0) return; // JANGAN timpa UI kalau sedang mengirim pesan!
+    if (pendingMessages > 0) return; 
 
     const url = `/api/admin/chat/${encodeURIComponent(chatCustomerId)}`;
     const session = currentChatSession;
@@ -333,12 +387,9 @@ function loadChatMessages(forceScroll = false) {
     fetch(url)
         .then(res => res.json())
         .then(data => {
-            // Prevent race condition if user closed or switched chat while fetching
             if (session !== currentChatSession) return;
-            // Double check pendingMessages in case user typed while fetching
             if (pendingMessages > 0) return;
 
-            // Check if data actually changed to prevent flickering / re-rendering
             const currentDataString = JSON.stringify(data);
             if (currentDataString === lastFetchedChatData && !forceScroll) return;
             lastFetchedChatData = currentDataString;
@@ -356,19 +407,29 @@ function loadChatMessages(forceScroll = false) {
             }
 
             let html = "";
+            const now = new Date();
+
             data.forEach(msg => {
                 if (msg.is_admin) {
                     let tickColor = msg.dibaca ? 'text-blue-400' : 'text-slate-400';
-                    // Admin bubble (right aligned, indigo) with Edit/Delete options
+                    
+                    // Batasan edit: Cek apakah selisih waktu pembuatan kurang dari 15 menit
+                    const createdAt = new Date(msg.created_at_raw);
+                    const diffMinutes = (now - createdAt) / (1000 * 60);
+                    const canEdit = diffMinutes <= 15;
+
                     html += `
                         <div class="flex flex-col items-end self-end max-w-[85%] group relative mb-1">
-                            <div class="flex items-center gap-2">
-                                <div class="hidden group-hover:flex items-center gap-1 bg-white shadow-sm rounded-lg border border-slate-100 px-1 py-0.5 transition-all">
-                                    <button onclick="editChatMessage(${msg.id}, '${escapeHtml(msg.message).replace(/'/g, "\\'")}')" class="text-blue-500 hover:bg-blue-50 rounded p-1" title="Edit">
-                                        <span class="material-icons text-[14px]">edit</span>
+                            <div class="flex items-center gap-2 relative">
+                                <!-- Tombol Aksi Absolute Hover (No Layout Shift) -->
+                                <div class="hidden group-hover:flex items-center gap-1 bg-white shadow-md rounded-xl border border-slate-100 px-1.5 py-1 absolute left-0 -translate-x-[110%] top-1/2 -translate-y-1/2 z-10 transition-all duration-200">
+                                    ${canEdit ? `
+                                    <button onclick="openEditModal(${msg.id}, '${escapeHtml(msg.message).replace(/'/g, "\\'")}')" class="text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg p-1.5 duration-100 flex items-center justify-center" title="Edit">
+                                        <span class="material-icons text-[15px]">edit</span>
                                     </button>
-                                    <button onclick="deleteChatMessage(${msg.id})" class="text-red-500 hover:bg-red-50 rounded p-1" title="Hapus">
-                                        <span class="material-icons text-[14px]">delete</span>
+                                    ` : ''}
+                                    <button onclick="openDeleteModal(${msg.id})" class="text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg p-1.5 duration-100 flex items-center justify-center" title="Hapus">
+                                        <span class="material-icons text-[15px]">delete_outline</span>
                                     </button>
                                 </div>
                                 <div class="bg-[#4151a6] text-white px-4 py-2.5 rounded-2xl rounded-tr-none text-sm shadow-sm leading-relaxed break-words" id="msg-text-${msg.id}">
@@ -376,13 +437,14 @@ function loadChatMessages(forceScroll = false) {
                                 </div>
                             </div>
                             <div class="flex items-center gap-1 mt-1 mr-1">
-                                <span class="text-[9px] text-slate-400">${msg.time}</span>
+                                <span class="text-[9px] text-slate-400">
+                                    ${msg.is_edited ? '<span class="italic text-[8px] mr-1">(diedit)</span>' : ''}${msg.time}
+                                </span>
                                 <span class="material-icons text-[12px] ${tickColor}">done_all</span>
                             </div>
                         </div>
                     `;
                 } else {
-                    // Customer bubble (left aligned, white)
                     html += `
                         <div class="flex flex-col items-start self-start max-w-[85%] mb-1">
                             <div class="bg-white text-slate-800 border border-slate-100 px-4 py-2.5 rounded-2xl rounded-tl-none text-sm shadow-sm leading-relaxed break-words">
@@ -412,10 +474,8 @@ function sendChatMessage(event) {
     const msgText = input.value.trim();
     if (!msgText) return;
 
-    // Bersihkan input
     input.value = "";
 
-    // TAMPILKAN PESAN SECARA INSTAN (OPTIMISTIC UI WHATSAPP STYLE)
     const container = document.getElementById("chatMessages");
     if (container.innerHTML.includes("Belum ada obrolan")) {
         container.innerHTML = "";
@@ -439,7 +499,7 @@ function sendChatMessage(event) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
     const session = currentChatSession;
 
-    pendingMessages++; // Kunci interval polling
+    pendingMessages++; 
 
     fetch('/api/admin/chat/send', {
         method: 'POST',
@@ -452,39 +512,12 @@ function sendChatMessage(event) {
             message: msgText
         })
     }).then(res => res.json()).then(res => {
-        pendingMessages--; // Buka kunci polling
+        pendingMessages--; 
         if (session === currentChatSession) {
             if (res.success) {
-                let tickColor = res.message.dibaca ? 'text-blue-400' : 'text-slate-400';
-                // Ubah bubble sementara menjadi bubble permanen
-                const tempBubble = document.getElementById(tempId);
-                if (tempBubble) {
-                    tempBubble.classList.remove("opacity-70");
-                    tempBubble.outerHTML = `
-                        <div class="flex flex-col items-end self-end max-w-[85%] group relative mb-1">
-                            <div class="flex items-center gap-2">
-                                <div class="hidden group-hover:flex items-center gap-1 bg-white shadow-sm rounded-lg border border-slate-100 px-1 py-0.5 transition-all">
-                                    <button onclick="editChatMessage(${res.message.id}, '${escapeHtml(res.message.message).replace(/'/g, "\\'")}')" class="text-blue-500 hover:bg-blue-50 rounded p-1" title="Edit">
-                                        <span class="material-icons text-[14px]">edit</span>
-                                    </button>
-                                    <button onclick="deleteChatMessage(${res.message.id})" class="text-red-500 hover:bg-red-50 rounded p-1" title="Hapus">
-                                        <span class="material-icons text-[14px]">delete</span>
-                                    </button>
-                                </div>
-                                <div class="bg-[#4151a6] text-white px-4 py-2.5 rounded-2xl rounded-tr-none text-sm shadow-sm leading-relaxed break-words" id="msg-text-${res.message.id}">
-                                    ${escapeHtml(res.message.message)}
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-1 mt-1 mr-1">
-                                <span class="text-[9px] text-slate-400">${res.message.time}</span>
-                                <span class="material-icons text-[12px] ${tickColor}">done_all</span>
-                            </div>
-                        </div>
-                    `;
-                }
-                lastFetchedChatData = ""; // Agar polling berikutnya sinkronisasi
+                lastFetchedChatData = ""; 
+                loadChatMessages(true);
             } else {
-                // Tampilkan status gagal kirim jika res.success false
                 const tempBubble = document.getElementById(tempId);
                 if (tempBubble) {
                     tempBubble.outerHTML = `
@@ -504,7 +537,6 @@ function sendChatMessage(event) {
     }).catch(err => {
         pendingMessages--;
         console.error('Gagal mengirim pesan:', err);
-        // Tampilkan status gagal kirim jika fetch error / JSON parsing error
         const tempBubble = document.getElementById(tempId);
         if (tempBubble) {
             tempBubble.outerHTML = `
@@ -522,12 +554,33 @@ function sendChatMessage(event) {
     });
 }
 
-function deleteChatMessage(id) {
-    if (!confirm('Hapus pesan ini?')) return;
+// Handler Aksi Modal Hapus (Pengganti confirm)
+function openDeleteModal(id) {
+    deleteMessageId = id;
+    const modal = document.getElementById("deleteConfirmModal");
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
     
-    pendingMessages++; // Kunci UI agar tidak kedap-kedip saat menghapus
+    document.getElementById("confirmDeleteBtn").onclick = function() {
+        confirmDeleteChatMessage();
+    };
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById("deleteConfirmModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+    deleteMessageId = null;
+}
+
+function confirmDeleteChatMessage() {
+    if (!deleteMessageId) return;
+    closeDeleteModal();
+    
+    pendingMessages++;
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
-    fetch(`/api/admin/chat/${id}`, {
+    
+    fetch(`/api/admin/chat/${deleteMessageId}`, {
         method: 'DELETE',
         headers: {
             'X-CSRF-TOKEN': csrfToken
@@ -536,31 +589,72 @@ function deleteChatMessage(id) {
         pendingMessages--;
         if (res.success) {
             lastFetchedChatData = "";
-            loadChatMessages();
+            loadChatMessages(true);
         }
+    }).catch(err => {
+        pendingMessages--;
+        console.error('Gagal menghapus pesan:', err);
     });
 }
 
-function editChatMessage(id, oldText) {
-    const newText = prompt('Edit pesan:', oldText);
-    if (newText === null || newText.trim() === '' || newText === oldText) return;
+// Handler Aksi Modal Edit (Pengganti prompt)
+function openEditModal(id, currentText) {
+    editMessageId = id;
+    const modal = document.getElementById("editMessageModal");
+    const textarea = document.getElementById("editMessageTextarea");
+    textarea.value = currentText;
+    
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    
+    document.getElementById("confirmEditBtn").onclick = function() {
+        confirmEditChatMessage();
+    };
+}
 
+function closeEditModal() {
+    const modal = document.getElementById("editMessageModal");
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+    editMessageId = null;
+}
+
+function confirmEditChatMessage() {
+    if (!editMessageId) return;
+    const textarea = document.getElementById("editMessageTextarea");
+    const newText = textarea.value.trim();
+    if (!newText) return;
+    
+    closeEditModal();
+    
     pendingMessages++;
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
-    fetch(`/api/admin/chat/${id}`, {
+    
+    fetch(`/api/admin/chat/${editMessageId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': csrfToken
         },
-        body: JSON.stringify({ message: newText.trim() })
+        body: JSON.stringify({ message: newText })
     }).then(res => res.json()).then(res => {
         pendingMessages--;
         if (res.success) {
             lastFetchedChatData = "";
-            loadChatMessages();
+            loadChatMessages(true);
         }
+    }).catch(err => {
+        pendingMessages--;
+        console.error('Gagal mengedit pesan:', err);
     });
+}
+
+function deleteChatMessage(id) {
+    openDeleteModal(id);
+}
+
+function editChatMessage(id, oldText) {
+    openEditModal(id, oldText);
 }
 
 function escapeHtml(text) {

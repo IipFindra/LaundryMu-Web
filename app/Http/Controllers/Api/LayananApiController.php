@@ -29,7 +29,20 @@ class LayananApiController extends Controller
             )
             ->where('status', 'Aktif')
             ->orderBy('id_layanan', 'asc')
-            ->get();
+            ->get()
+            ->map(function ($layanan) {
+                return [
+                    'id_layanan' => $layanan->id_layanan,
+                    'nama'       => $layanan->nama ?? '',
+                    'tipe'       => $layanan->tipe ?? '',
+                    'waktu'      => $layanan->waktu ?? '',
+                    'harga'      => (int) ($layanan->harga ?? 0),
+                    'deskripsi'  => $layanan->deskripsi ?? '',
+                    'ikon'       => $layanan->ikon ?? 'local_laundry_service',
+                    'warna_ikon' => $layanan->warna_ikon ?? 'bg-blue-100 text-blue-500',
+                    'warna_tipe' => $layanan->warna_tipe ?? 'bg-blue-100 text-blue-700',
+                ];
+            });
 
             return response()->json([
                 'success' => true,

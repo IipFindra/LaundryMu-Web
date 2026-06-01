@@ -28,6 +28,8 @@ Route::get('tracking/{id}', [LaundryController::class, 'getTracking']);
 // ─── CHAT MOBILE FLUTTER (TAMBAHKAN INI) ───
 Route::get('chat/get', [ChatController::class, 'getMessages']);
 Route::post('chat/send', [ChatController::class, 'sendMessage']);
+Route::put('chat/update/{id}', [ChatController::class, 'updateMessage']);
+Route::delete('chat/delete/{id}', [ChatController::class, 'deleteMessage']);
 
 // ─── ROUTE CHAT UNTUK WEB ADMIN (BIARKAN APA ADANYA) ───
 Route::post('chat/receive', [\App\Http\Controllers\DashboardController::class, 'receiveCustomerMessage']);

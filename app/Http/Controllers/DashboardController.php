@@ -16,8 +16,14 @@ class DashboardController extends Controller
         // MENGGANTI 'dibaca' MENJADI 'status_baca'
         $unreadNotif = Notification::where('status_baca', false)->count();
 
-        $pesan = Message::orderBy('created_at', 'desc')->take(10)->get();
-        $unreadPesan = Message::where('dibaca', false)->count();
+        $pesan = Message::where('tipe', 'chat_pelanggan')
+                    ->orderBy('created_at', 'desc')
+                    ->get()
+                    ->unique(function ($msg) {
+                        return $msg->id_pelanggan ?: $msg->nama_pengirim;
+                    })
+                    ->take(10);
+        $unreadPesan = Message::where('tipe', 'chat_pelanggan')->where('dibaca', false)->count();
 
         // Statistik Dinamis
         $totalPesananBaru = Pesanan::where('status', '!=', 'Selesai')->count();
@@ -115,10 +121,11 @@ class DashboardController extends Controller
         if ($request->has('id')) {
             Message::where('id', $request->id)->update(['dibaca' => true]);
         } else {
-            Message::where('dibaca', false)->update(['dibaca' => true]);
+            Message::where('tipe', 'chat_pelanggan')->where('dibaca', false)->update(['dibaca' => true]);
         }
 
-        return response()->json(['success' => true, 'unread' => Message::where('dibaca', false)->count()]);
+        $unreadCount = Message::where('tipe', 'chat_pelanggan')->where('dibaca', false)->count();
+        return response()->json(['success' => true, 'unread' => $unreadCount]);
     }
 
     /**
@@ -138,11 +145,15 @@ class DashboardController extends Controller
      */
     public function getMessages()
     {
-        // Hanya tampilkan pesan DARI PELANGGAN di inbox admin
+        // Hanya tampilkan pesan terakhir dari masing-masing pelanggan di inbox admin
         $pesan = Message::where('tipe', 'chat_pelanggan')
                     ->orderBy('created_at', 'desc')
+                    ->get()
+                    ->unique(function ($msg) {
+                        return $msg->id_pelanggan ?: $msg->nama_pengirim;
+                    })
                     ->take(10)
-                    ->get();
+                    ->values(); // reset array keys for JSON serialization
         $unread = Message::where('tipe', 'chat_pelanggan')
                     ->where('dibaca', false)
                     ->count();
@@ -167,6 +178,8 @@ class DashboardController extends Controller
                     'time'     => $msg->created_at->locale('id')->diffForHumans(),
                     'is_admin' => $msg->tipe === 'chat_admin',
                     'dibaca'   => (bool) $msg->dibaca,
+                    'is_edited'=> $msg->updated_at->gt($msg->created_at),
+                    'created_at_raw' => $msg->created_at->toIso8601String(),
                 ];
             });
 
@@ -270,13 +283,17 @@ class DashboardController extends Controller
 
         $msg = Message::findOrFail($id);
         
-        // Ensure only admin messages can be edited (optional, depending on business logic)
-        if ($msg->nama_pengirim === 'Admin') {
-            $msg->update(['pesan' => $request->message]);
-            return response()->json(['success' => true]);
+        // Ensure only admin messages can be edited
+        if ($msg->nama_pengirim !== 'Admin') {
+            return response()->json(['success' => false, 'error' => 'Hanya admin yang dapat mengedit pesan ini.'], 403);
         }
 
-        return response()->json(['success' => false], 403);
+        if ($msg->created_at->diffInMinutes(now()) > 15) {
+            return response()->json(['success' => false, 'error' => 'Batas waktu edit pesan (15 menit) telah terlampaui.'], 403);
+        }
+
+        $msg->update(['pesan' => $request->message]);
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -286,11 +303,11 @@ class DashboardController extends Controller
     {
         $msg = Message::findOrFail($id);
         
-        if ($msg->nama_pengirim === 'Admin') {
-            $msg->delete();
-            return response()->json(['success' => true]);
+        if ($msg->nama_pengirim !== 'Admin') {
+            return response()->json(['success' => false, 'error' => 'Hanya admin yang dapat menghapus pesan ini.'], 403);
         }
 
-        return response()->json(['success' => false], 403);
+        $msg->delete(); // Soft delete
+        return response()->json(['success' => true]);
     }
 }
