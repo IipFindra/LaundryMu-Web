@@ -22,7 +22,7 @@ Route::post('send-otp', [OtpController::class, 'sendOtp']);
 Route::post('verify-otp', [OtpController::class, 'verifyOtp']);
 
 // ─── EDIT PROFILE MOBILE FLUTTER ───
-Route::post('update-nama', [PelangganAuthController::class, 'updateNama']);
+Route::post('update-profil', [PelangganAuthController::class, 'updateProfil']);
 
 // ─── MOBILE API ROUTES (stateless, no auth middleware) ───
 Route::get('layanans', [LayananApiController::class, 'index']);

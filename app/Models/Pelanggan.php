@@ -20,6 +20,7 @@ class Pelanggan extends Authenticatable
         'nama_lengkap',
         'no_telepon',
         'alamat',
+        'foto_profile',
         'otp_code',
         'otp_expires_at',
     ];

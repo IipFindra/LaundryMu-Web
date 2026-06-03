@@ -120,7 +120,14 @@
                             ? \Carbon\Carbon::parse($pelanggan->created_at)->locale('id')->translatedFormat('d F Y')
                             : '-';
                     @endphp
-                    <tr class="border-b border-slate-100 hover:bg-blue-50/50 transition cursor-pointer" onclick="selectPelanggan('{{ $pelanggan->id_pelanggan }}', this)" data-pelanggan-id="{{ $pelanggan->id_pelanggan }}">
+                    <tr class="border-b border-slate-100 hover:bg-blue-50/50 transition cursor-pointer" 
+                        onclick="selectPelanggan('{{ $pelanggan->id_pelanggan }}', this)" 
+                        data-pelanggan-id="{{ $pelanggan->id_pelanggan }}"
+                        data-nama="{{ $pelanggan->nama_lengkap }}"
+                        data-telepon="{{ $telepon }}"
+                        data-alamat="{{ $alamat }}"
+                        data-foto="{{ $pelanggan->foto_profile ? asset('storage/' . $pelanggan->foto_profile) : '' }}"
+                    >
                         <td class="py-3.5 px-3" onclick="event.stopPropagation();">
                             <input type="checkbox" class="w-4 h-4 accent-[#4151a6]">
                         </td>
@@ -130,7 +137,16 @@
                         </td>
                         {{-- Kolom: Nama Pelanggan --}}
                         <td class="py-3.5 px-3 font-semibold text-gray-800 text-sm leading-tight">
-                            {{ $pelanggan->nama_lengkap ?: '-' }}
+                            <div class="flex items-center gap-3">
+                                @if($pelanggan->foto_profile)
+                                    <img src="{{ asset('storage/' . $pelanggan->foto_profile) }}" class="w-8 h-8 rounded-full object-cover shadow-sm">
+                                @else
+                                    <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs uppercase shadow-sm">
+                                        {{ substr($pelanggan->nama_lengkap ?: 'P', 0, 1) }}
+                                    </div>
+                                @endif
+                                <span>{{ $pelanggan->nama_lengkap ?: '-' }}</span>
+                            </div>
                         </td>
                         {{-- Kolom: Kontak --}}
                         <td class="py-3.5 px-3 text-gray-600 text-sm font-medium">
@@ -189,12 +205,38 @@ function selectPelanggan(pelangganId, rowElement) {
     editButton.classList.add("bg-[#4151a6]", "text-white", "hover:bg-[#2d3e90]");
 }
 
-/* GO TO EDIT PELANGGAN */
+/* GO TO EDIT PELANGGAN / DETAIL */
 function goToEditPelanggan() {
     if (selectedPelangganId) {
-        // Example route to edit pelanggan
-        console.log("Edit pelanggan: " + selectedPelangganId);
+        const row = document.querySelector(`tr[data-pelanggan-id="${selectedPelangganId}"]`);
+        if (row) {
+            const nama = row.getAttribute('data-nama');
+            const telepon = row.getAttribute('data-telepon');
+            const alamat = row.getAttribute('data-alamat');
+            const foto = row.getAttribute('data-foto');
+            
+            document.getElementById('detailNama').innerText = nama || '-';
+            document.getElementById('detailTelepon').innerText = telepon || '-';
+            document.getElementById('detailAlamat').innerText = alamat || '-';
+            
+            const avatarContainer = document.getElementById('detailAvatarContainer');
+            if (foto) {
+                avatarContainer.innerHTML = `<img src="${foto}" class="w-24 h-24 rounded-full object-cover shadow-md border-4 border-white">`;
+            } else {
+                avatarContainer.innerHTML = `<div class="w-24 h-24 rounded-full bg-[#4151a6] text-white flex items-center justify-center text-3xl font-bold shadow-md border-4 border-white uppercase">${(nama || 'P').substring(0,1)}</div>`;
+            }
+            
+            const modal = document.getElementById('detailPelangganModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
     }
+}
+
+function closeDetailModal() {
+    const modal = document.getElementById('detailPelangganModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
 }
 
 /* SEARCH — kolom: 0=Pilih, 1=ID Pelanggan, 2=Nama Pelanggan, 3=Kontak, 4=Alamat, 5=Bergabung */
@@ -215,6 +257,36 @@ function searchPelanggan() {
     });
 }
 </script>
+
+<!-- DETAIL PELANGGAN MODAL -->
+<div id="detailPelangganModal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+    <div class="absolute inset-0 bg-black/55 backdrop-blur-sm" onclick="closeDetailModal()"></div>
+    <div class="relative bg-white rounded-3xl w-full max-w-sm shadow-2xl flex flex-col overflow-hidden">
+        <div class="bg-gradient-to-r from-[#3a4ca3] to-[#4b63c3] text-white px-6 py-4 flex items-center justify-between shadow-md h-24">
+            <h3 class="font-bold text-lg">Detail Pelanggan</h3>
+            <button onclick="closeDetailModal()" class="h-8 w-8 rounded-full hover:bg-white/20 flex items-center justify-center transition mb-8">
+                <span class="material-icons text-lg">close</span>
+            </button>
+        </div>
+        <div class="px-6 pb-6 pt-0 relative flex flex-col items-center -mt-12">
+            <div id="detailAvatarContainer" class="mb-4">
+                <!-- Avatar injected via JS -->
+            </div>
+            <h4 id="detailNama" class="text-xl font-bold text-slate-800 mb-1">Nama Pelanggan</h4>
+            <span id="detailTelepon" class="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full font-medium mb-6">08xxxx</span>
+            
+            <div class="w-full bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left shadow-inner">
+                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Alamat</div>
+                <div id="detailAlamat" class="text-sm text-slate-700 leading-relaxed font-medium">Alamat lengkap disini...</div>
+            </div>
+            <div class="w-full mt-6 flex justify-end">
+                <button onclick="closeDetailModal()" class="px-6 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm rounded-xl transition duration-200">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- CHAT MODAL -->
 <div id="chatModal" class="fixed inset-0 z-[100] hidden items-center justify-center">
