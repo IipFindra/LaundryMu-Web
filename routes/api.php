@@ -6,6 +6,7 @@ use App\Http\Controllers\LaundryController;
 use App\Http\Controllers\Api\LayananApiController;
 use App\Http\Controllers\Api\PelangganAuthController;
 use App\Http\Controllers\Api\ChatController; // <-- TAMBAHKAN INI UNTUK CHAT
+use App\Http\Controllers\Api\OtpController;
 
 // ─── Public routes ───
 Route::post('login', [AuthController::class, 'login']);
@@ -15,6 +16,10 @@ Route::get('services', [LaundryController::class, 'getServices']);
 // ─── LOGIN MOBILE FLUTTER ───
 Route::post('login-mobile', [PelangganAuthController::class, 'loginMobile']);
 Route::post('complete-profile', [PelangganAuthController::class, 'completeProfile']);
+
+// ─── WHATSAPP OTP ROUTE (FONNTE) ───
+Route::post('send-otp', [OtpController::class, 'sendOtp']);
+Route::post('verify-otp', [OtpController::class, 'verifyOtp']);
 
 // ─── EDIT PROFILE MOBILE FLUTTER ───
 Route::post('update-nama', [PelangganAuthController::class, 'updateNama']);
